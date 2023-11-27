@@ -16,7 +16,7 @@ class Sprite {
     this.position = position;
     this.velocity = velocity;
     this.width = 50;
-    this.height = 150;
+    this.height = 100;
     this.lastkey;
 
     this.grounded;
@@ -32,7 +32,6 @@ class Sprite {
       offset,
     };
     this.isAttacking;
-    this.isCrouching;
     this.colour = colour;
     this.direction = direction;
 
@@ -94,14 +93,6 @@ class Sprite {
     } else {
       this.velocity.y += gravity;
       this.grounded = false;
-    }
-
-    //crouching
-
-    if (this.isCrouching) {
-      this.height = 50;
-    } else {
-      this.height = 100;
     }
 
     //make sure players dont clip through floor
@@ -331,13 +322,6 @@ window.addEventListener("keydown", (event) => {
       }
       break;
     case "s":
-      if (player.grounded){
-        player.isCrouching = true;
-        player.position.y += player.height / 2
-        
-      } 
-      break;
-    case " ":
       player.attack();
       break;
 
@@ -374,7 +358,6 @@ window.addEventListener("keyup", (event) => {
       keys.a.pressed = false;
       break;
     case "s":
-      player.isCrouching = false;
       break;
   }
 
