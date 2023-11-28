@@ -9,121 +9,30 @@ canvas.height = 576;
 c.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.4;
-const numOfJumps = 2;
+const numOfJumps = 1;
 
-class Sprite {
-  constructor({ position, velocity, colour = "red", offset, direction }) {
-    this.position = position;
-    this.velocity = velocity;
-    this.width = 50;
-    this.height = 100;
-    this.lastkey;
+const background = new Sprite({
+  position: {
+    x: 0,
+    y: 0
+  },
+  imageSrc: './img/background.png'
+})
 
-    this.grounded;
-    this.numOfJumps = numOfJumps;
+const shop = new Sprite({
+  position: {
+    x: 620,
+    y: 135
+  },
+  imageSrc: './img/shop2.png',
+  scale: 0.9,
+  framesMax: 6
+})
 
-    this.attackBox = {
-      position: {
-        x: this.position.x,
-        y: this.position.y,
-      },
-      width: 100,
-      height: 50,
-      offset,
-    };
-    this.isAttacking;
-    this.colour = colour;
-    this.direction = direction;
-
-    this.health = 100;
-  }
-
-  draw() {
-    c.fillStyle = this.colour;
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-    // Set the attackBox position based on direction
-    if (this.isAttacking) {
-      if (this.direction === 1) {
-        this.attackBox.position.x =
-          this.position.x;
-        c.fillStyle = "lime";
-        c.fillRect(
-          this.attackBox.position.x,
-          this.attackBox.position.y,
-          this.attackBox.width,
-          this.attackBox.height
-        );
-      } else if (this.direction === 0) {
-        this.attackBox.position.x =
-          this.position.x - this.width;
-        c.fillStyle = "lime";
-        c.fillRect(
-          this.attackBox.position.x,
-          this.attackBox.position.y,
-          this.attackBox.width,
-          this.attackBox.height
-        );
-      }
-      this.attackBox.position.y = this.position.y;
-    }
-  }
-
-  resetJumps() {
-    this.numOfJumps = numOfJumps;
-  }
-
-  update() {
-    this.draw();
-
-    if (this.direction === 0){
-      this.attackBox.position.x = this.position.x + this.width;
-    } else if (this.direction === 0){
-      this.attackBox.position.x = this.position.x;
-    }
-
-    this.attackBox.position.y = this.position.y;
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-
-    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-      this.velocity.y = 0;
-      this.grounded = true;
-      this.resetJumps();
-    } else {
-      this.velocity.y += gravity;
-      this.grounded = false;
-    }
-
-    //make sure players dont clip through floor
-    if (this.position.y > canvas.height - this.height){
-      this.position.y = canvas.height - this.height
-    }
-
-    //make sure players dont move past wall bounds
-    if (this.position.x < 0){
-      this.position.x = 0
-    }
-    console.log(player.position.x)
-  
-    if (this.position.x > canvas.width - this.width){
-      this.position.x = canvas.width - this.width
-    }
-
-  }
-
-  attack() {
-    this.isAttacking = true;
-    setTimeout(() => {
-      this.isAttacking = false;
-    }, 100);
-  }
-}
-
-const player = new Sprite({
+const player = new Fighter({
   position: {
     x: 300,
-    y: 500,
+    y: 0,
   },
   velocity: {
     x: 0,
@@ -134,13 +43,21 @@ const player = new Sprite({
     y: 0,
   },
   direction: 1,
-});
+  imageSrc: './img/FireKnight/idle1.png',
+  framesMax: 8,
+  scale: 0.85,
+  offset: {
+    x: 345,
+    y: 222
+  }
+
+})
 console.log(player);
 
-const enemy = new Sprite({
+const enemy = new Fighter({
   position: {
     x: canvas.width - 350,
-    y: 500,
+    y: 0,
   },
   velocity: {
     x: 0,
@@ -170,57 +87,6 @@ const keys = {
   },
 };
 
-function rectangularCollision({ rectangle1, rectangle2 }) {
-
-  dir1 =  rectangle1.attackBox.position.x + rectangle1.attackBox.width >=
-            rectangle2.position.x &&
-          rectangle1.attackBox.position.x <=
-            rectangle2.position.x + rectangle2.width &&
-          rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
-            rectangle2.position.y &&
-          rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
-
-  dir0 =  rectangle1.attackBox.position.x - rectangle1.attackBox.width <=
-            rectangle2.position.x + rectangle2.width &&
-          rectangle1.attackBox.position.x >=
-            rectangle2.position.x + rectangle2.width &&
-          rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
-            rectangle2.position.y &&
-          rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
-
-  if (rectangle1.direction === 0){
-    return dir0
-  } else {
-    return dir1
-  }
-}
-
-function determineWinner({ player, enemy, timerId }) {
-  clearTimeout(timerId);
-  document.querySelector("#displayText").style.display = "flex";
-
-  if (player.health === enemy.health) {
-    document.querySelector("#displayText").innerHTML = "Tie!";
-  } else if (player.health > enemy.health) {
-    document.querySelector("#displayText").innerHTML = "Player 1 Wins!";
-  } else if (enemy.health > player.health) {
-    document.querySelector("#displayText").innerHTML = "Player 2 Wins!";d
-  }
-}
-
-let timer = 101;
-let timerId;
-function decreaseTimer() {
-  if (timer > 0) {
-    timerId = setTimeout(decreaseTimer, 1000);
-    timer--;
-    document.querySelector("#timer").innerHTML = timer;
-  }
-  if (timer === 0) {
-    determineWinner({ player, enemy, timerId });
-  }
-}
-
 decreaseTimer();
 
 //ANIMATE AT 60fps
@@ -241,12 +107,17 @@ function animate() {
   msPrev = msNow - excessTime;
 
   frames++;
+  // console.log(frames)
 
   window.requestAnimationFrame(animate);
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
+
+  background.update()
+  shop.update()
+
   player.update();
-  enemy.update();
+  //enemy.update();
 
   //player movement
   player.velocity.x = 0;
