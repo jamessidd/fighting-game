@@ -1,11 +1,13 @@
 class Sprite {
-  constructor({ position, direction, imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y: 0}}) {
+  constructor({ position, direction, imageSrc, imageRevSrc, scale = 1, framesMax = 1, offset = {x: 0, y: 0}}) {
     this.position = position;
     this.width = 50;
     this.height = 100;
     this.direction = direction;
     this.image = new Image();
     this.image.src = imageSrc;
+    this.imageRev = new Image();
+    this.imageRev.src = imageRevSrc;
     this.scale = scale;
     this.framesMax = framesMax
     this.framesCurrent = 0
@@ -14,27 +16,44 @@ class Sprite {
     this.offset = offset
   }
 
-
-
   draw() {
     // c.fillStyle = "red";
     // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    if (this.direction === 0){
+      c.drawImage(
+        this.imageRev,
+  
+        this.framesCurrent * (this.imageRev.width / this.framesMax),
+        0,
+        this.imageRev.width / this.framesMax,
+        this.imageRev.height,
+  
+        this.position.x - this.offset.x,
+        this.position.y - this.offset.y,
+        (this.imageRev.width / this.framesMax) * this.scale,
+        this.imageRev.height * this.scale
+      );
 
-    c.drawImage(
-      this.image,
+    } else {
+      c.drawImage(
+        this.image,
+  
+        this.framesCurrent * (this.image.width / this.framesMax),
+        0,
+        this.image.width / this.framesMax,
+        this.image.height,
+  
+        this.position.x - this.offset.x,
+        this.position.y - this.offset.y,
+        (this.image.width / this.framesMax) * this.scale,
+        this.image.height * this.scale
+      );
 
-      this.framesCurrent * (this.image.width / this.framesMax),
-      0,
-      this.image.width / this.framesMax,
-      this.image.height,
+    }
 
-      this.position.x - this.offset.x,
-      this.position.y - this.offset.y,
-      (this.image.width / this.framesMax) * this.scale,
-      this.image.height * this.scale
-    );
+
+
   }
-
   animateFrames(){
     this.framesElapsed++
 
@@ -56,16 +75,17 @@ class Sprite {
 }
 
 class Fighter extends Sprite{
-  constructor({ position, velocity, colour = "red", direction, imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y: 0}  }) {
+  constructor({ position, velocity, colour = "red", direction, imageSrc, imageRevSrc, scale = 1, framesMax = 1, offset = {x: 0, y: 0}  }) {
 
     super({
         position,
         imageSrc,
+        imageRevSrc,
         scale,
         framesMax,
         offset
     })
-    
+
     this.velocity = velocity;
     this.width = 50;
     this.height = 100;

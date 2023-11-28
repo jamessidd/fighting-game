@@ -1,5 +1,3 @@
-//WITH DOUBLE JUMP
-
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d"); //c stands for context
 
@@ -44,6 +42,7 @@ const player = new Fighter({
   },
   direction: 1,
   imageSrc: './img/FireKnight/idle1.png',
+  imageRevSrc: './img/FireKnight/idle1r.png',
   framesMax: 8,
   scale: 0.85,
   offset: {
@@ -107,7 +106,7 @@ function animate() {
   msPrev = msNow - excessTime;
 
   frames++;
-  // console.log(frames)
+  console.log(frames)
 
   window.requestAnimationFrame(animate);
   c.fillStyle = "black";
@@ -168,7 +167,8 @@ function animate() {
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {
     determineWinner({ player, enemy, timerId });
-  }
+  } 
+
 }
 
 animate();
