@@ -13,7 +13,7 @@
 
 ## Introduction
 
-Foins' Fighters is a web game that challenges your combat skills. The game includes mutiplayer PvP combat experience. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
+Foins' Fighters is a mutiplayer PvP combat experience. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
 
 ## Controls
 
