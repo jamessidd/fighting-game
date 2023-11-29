@@ -71,13 +71,25 @@ const player = new Fighter({
       imageSrc: './img/FireKnight/attack1.png',
       framesMax: 11
     }
+  },
+  attackBox: {
+    offset:{
+      x: 80,
+      y: 0
+    },
+    width: 100,
+    height: 100
   }
 
 })
 console.log(player);
+
+
+
+//enemy
 const enemy = new Fighter({
   position: {
-    x: 750,
+    x: canvas.width - 350,
     y: 0,
   },
   velocity: {
@@ -90,7 +102,7 @@ const enemy = new Fighter({
   },
   canbeReversed: true,
   direction: 1,
-  imageSrc: './img/FireKnight/idle.png',
+  imageSrc: './img/WaterPrincess/idle.png',
   framesMax: 8,
   scale: 0.85,
   offset: {
@@ -99,47 +111,38 @@ const enemy = new Fighter({
   },
   sprites: {
     idle: {
-      imageSrc: './img/FireKnight/idle.png',
+      imageSrc: './img/WaterPrincess/idle.png',
       framesMax: 8
     },
     run: {
-      imageSrc: './img/FireKnight/run.png',
-      framesMax: 8
+      imageSrc: './img/WaterPrincess/surf.png',
+      framesMax: 9
     },
     jump: {
-      imageSrc: './img/FireKnight/jump.png',
+      imageSrc: './img/WaterPrincess/jump.png',
       framesMax: 3
     },
     fall: {
-      imageSrc: './img/FireKnight/fall.png',
+      imageSrc: './img/WaterPrincess/fall.png',
       framesMax: 3
     },
     attack1: {
-      imageSrc: './img/FireKnight/attack1.png',
-      framesMax: 11
+      imageSrc: './img/WaterPrincess/attack1.png',
+      framesMax: 7
     }
+  },
+  attackBox: {
+    offset:{
+      x: 0,
+      y: 0
+    },
+    width: 175,
+    height: 50
   }
 
 })
 console.log(enemy);
-// const enemy = new Fighter({
-//   position: {
-//     x: canvas.width - 350,
-//     y: 0,
-//   },
-//   velocity: {
-//     x: 0,
-//     y: 0,
-//   },
-//   colour: "blue",
-//   offset: {
-//     x: 0,
-//     y: 0,
-//   },
-//   canbeReversed: true,
-//   direction: 1,
-// });
-// console.log(enemy);
+
 
 const keys = {
   a: {
@@ -185,7 +188,7 @@ function animate() {
   shop.update()
 
   player.update();
-  //enemy.update();
+  enemy.update();
 
   player.velocity.x = 0;
   enemy.velocity.x = 0;
@@ -203,7 +206,7 @@ function animate() {
 
   }
 
-  //jump animation
+  //jump animation player
   if (player.velocity.y < 0){
     player.switchSprite('jump')
   } else if (player.velocity.y > 0){
@@ -211,10 +214,22 @@ function animate() {
   }
 
   //enemy movement
-  if (keys.ArrowLeft.pressed && enemy.lastkey === "ArrowLeft") {
+  if (enemy.canMove && keys.ArrowLeft.pressed && enemy.lastkey === "ArrowLeft") {
+    enemy.switchSprite('run')
     enemy.velocity.x = -5;
-  } else if (keys.ArrowRight.pressed && enemy.lastkey === "ArrowRight") {
+  } else if (enemy.canMove && keys.ArrowRight.pressed && enemy.lastkey === "ArrowRight") {
+    enemy.switchSprite('run')
     enemy.velocity.x = 5;
+  } else {
+    enemy.switchSprite('idle')
+
+  }
+
+  //jump animation enemy
+  if (enemy.velocity.y < 0){
+    enemy.switchSprite('jump')
+  } else if (enemy.velocity.y > 0){
+    enemy.switchSprite('fall')
   }
 
   //collision detection in attackzone
@@ -223,7 +238,7 @@ function animate() {
       rectangle1: player,
       rectangle2: enemy,
     }) &&
-    player.isAttacking
+    player.isAttacking && player.framesCurrent === 5
   ) {
     player.isAttacking = false;
 
@@ -237,7 +252,7 @@ function animate() {
       rectangle1: enemy,
       rectangle2: player,
     }) &&
-    enemy.isAttacking
+    enemy.isAttacking && enemy.framesCurrent === 3
   ) {
     enemy.isAttacking = false;
 
@@ -285,17 +300,19 @@ window.addEventListener("keydown", (event) => {
     case "ArrowRight":
       keys.ArrowRight.pressed = true;
       enemy.lastkey = "ArrowRight";
-      enemy.direction = 1;
+      if (! enemy.isAttacking)
+        enemy.direction = 1;
       break;
     case "ArrowLeft":
       keys.ArrowLeft.pressed = true;
       enemy.lastkey = "ArrowLeft";
-      enemy.direction = 0;
+      if (! enemy.isAttacking)
+        enemy.direction = 0;
 
       break;
     case "ArrowUp":
-      if (enemy.numOfJumps > 0) {
-        enemy.velocity.y = -5;
+      if (enemy.canMove && enemy.numOfJumps > 0) {
+        enemy.velocity.y = -10;
         enemy.numOfJumps -= 1;
       }
       break;

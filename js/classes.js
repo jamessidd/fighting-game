@@ -106,6 +106,7 @@ class Fighter extends Sprite {
     framesMax = 1,
     offset = { x: 0, y: 0 },
     sprites,
+    attackBox = {offset : {}, width: undefined, height: undefined}
   }) {
     super({
       position,
@@ -129,9 +130,9 @@ class Fighter extends Sprite {
         x: this.position.x,
         y: this.position.y,
       },
-      width: 100,
-      height: 50,
-      offset,
+      width: attackBox.width,
+      height: attackBox.height,
+      offset: attackBox.offset,
     };
     this.isAttacking;
     this.colour = colour;
@@ -156,14 +157,18 @@ class Fighter extends Sprite {
   update() {
     this.draw();
     this.animateFrames();
-
+    console.log(player.position.x)
     if (this.direction === 0) {
-      this.attackBox.position.x = this.position.x + this.width;
-    } else if (this.direction === 0) {
-      this.attackBox.position.x = this.position.x;
+      this.attackBox.position.x = this.position.x + this.width - this.attackBox.width - this.attackBox.offset.x;
+    } else if (this.direction === 1) {
+      this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
     }
+    
+    // c.fillStyle = "rgba(255, 255, 255, 0.25)";
+    // c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
 
-    this.attackBox.position.y = this.position.y;
+
+    this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
