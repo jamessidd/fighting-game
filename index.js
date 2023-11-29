@@ -196,7 +196,8 @@ function animate() {
 
   background.update();
   shop.update();
-
+  c.fillStyle = `rgba(255,255,255,0.15)`
+  c.fillRect(0,0,canvas.width,canvas.height)
   player.update();
   enemy.update();
 
@@ -263,8 +264,10 @@ function animate() {
     if (enemy.position.x > player.position.x) enemy.direction = 0;
     if (enemy.position.x < player.position.x) enemy.direction = 1;
 
-    document.querySelector("#enemyHealth").style.width = enemy.health + "%";
-
+    // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
+    gsap.to(`#enemyHealth`,{
+      width: enemy.health + "%"
+    })
     console.log("player hits enemy");
   }
   if (
@@ -282,8 +285,10 @@ function animate() {
     //when player is hit make it face the player
     if (player.position.x > enemy.position.x) player.direction = 0;
     if (player.position.x < enemy.position.x) player.direction = 1;
-    document.querySelector("#playerHealth").style.width = player.health + "%";
-
+    gsap.to(`#playerHealth`,{
+      width: player.health + "%"
+    })
+    console.log("player hits enemy");
     console.log("enemy hits player");
   }
 
