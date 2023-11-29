@@ -196,8 +196,8 @@ function animate() {
 
   background.update();
   shop.update();
-  c.fillStyle = `rgba(255,255,255,0.15)`
-  c.fillRect(0,0,canvas.width,canvas.height)
+  c.fillStyle = `rgba(255,255,255,0.15)`;
+  c.fillRect(0, 0, canvas.width, canvas.height);
   player.update();
   enemy.update();
 
@@ -261,13 +261,15 @@ function animate() {
     enemy.takehit();
 
     //when enemy is hit make it face the player
-    if (enemy.position.x > player.position.x) enemy.direction = 0;
-    if (enemy.position.x < player.position.x) enemy.direction = 1;
-
+    if (!enemy.dead) {
+      if (enemy.position.x > player.position.x) enemy.direction = 0;
+      if (enemy.position.x < player.position.x) enemy.direction = 1;
+    }
+    knockback(enemy, player)
     // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
-    gsap.to(`#enemyHealth`,{
-      width: enemy.health + "%"
-    })
+    gsap.to(`#enemyHealth`, {
+      width: enemy.health + "%",
+    });
     console.log("player hits enemy");
   }
   if (
@@ -283,11 +285,15 @@ function animate() {
     player.takehit();
 
     //when player is hit make it face the player
-    if (player.position.x > enemy.position.x) player.direction = 0;
-    if (player.position.x < enemy.position.x) player.direction = 1;
-    gsap.to(`#playerHealth`,{
-      width: player.health + "%"
-    })
+    if (!enemy.dead) {
+      if (player.position.x > enemy.position.x) player.direction = 0;
+      if (player.position.x < enemy.position.x) player.direction = 1;
+    }
+    knockback(player, enemy)
+
+    gsap.to(`#playerHealth`, {
+      width: player.health + "%",
+    });
     console.log("player hits enemy");
     console.log("enemy hits player");
   }
@@ -322,7 +328,6 @@ window.addEventListener("keydown", (event) => {
         break;
       case "s":
         player.attack();
-        console.log("s pressed");
         break;
     }
   }

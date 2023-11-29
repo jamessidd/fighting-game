@@ -56,3 +56,17 @@ function decreaseTimer() {
     determineWinner({ player, enemy, timerId });
   }
 }
+
+function knockback(fighterhit, fighter2){
+  if (fighterhit.position.x > fighter2.position.x){
+    fighterhit.velocity.x += 25
+    fighterhit.velocity.y -= 3
+
+  }
+  if (fighterhit.position.x < fighter2.position.x){
+    fighterhit.velocity.x -= 25
+    fighterhit.velocity.y -= 3
+
+  }
+}
+

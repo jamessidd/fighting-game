@@ -212,6 +212,14 @@ class Fighter extends Sprite {
   }
 
   switchSprite(sprite) {
+
+    //override if fighter gets hit
+    if (
+      this.image === this.sprites.takehit.image &&
+      this.framesCurrent < this.sprites.takehit.framesMax - 1
+    )
+      return;
+    //override if fighter dies
     if (this.image === this.sprites.death.image) {
       if (this.framesCurrent === this.sprites.death.framesMax - 1)
         this.dead = true;
@@ -223,13 +231,7 @@ class Fighter extends Sprite {
       this.framesCurrent < this.sprites.attack1.framesMax - 1
     )
       return;
-    //override if fighter gets hit
-    if (
-      this.image === this.sprites.takehit.image &&
-      this.framesCurrent < this.sprites.takehit.framesMax - 1
-    )
-      return;
-    //override if fighter dies
+
 
 
     if (this.image !== this.sprites[sprite].image) {
@@ -238,44 +240,5 @@ class Fighter extends Sprite {
       this.framesCurrent = 0;
     }
 
-    // switch (sprite) {
-    //   case "idle":
-    //     if (this.image !== this.sprites.idle.image) {
-    //       this.image = this.sprites.idle.image;
-    //       this.framesMax = this.sprites.idle.framesMax;
-    //       this.framesCurrent = 0;
-    //     }
-
-    //     break;
-    //   case "run":
-    //     if (this.image !== this.sprites.run.image) {
-    //       this.image = this.sprites.run.image;
-    //       this.framesMax = this.sprites.run.framesMax;
-    //       this.framesCurrent = 0;
-    //     }
-
-    //     break;
-    //   case "jump":
-    //     if (this.image !== this.sprites.jump.image) {
-    //       this.image = this.sprites.jump.image;
-    //       this.framesMax = this.sprites.jump.framesMax;
-    //       this.framesCurrent = 0;
-    //     }
-    //     break;
-    //   case "fall":
-    //     if (this.image !== this.sprites.fall.image) {
-    //       this.image = this.sprites.fall.image;
-    //       this.framesMax = this.sprites.fall.framesMax;
-    //       this.framesCurrent = 0;
-    //     }
-    //     break;
-    //   case "attack1":
-    //     if (this.image !== this.sprites.attack1.image) {
-    //       this.image = this.sprites.attack1.image;
-    //       this.framesMax = this.sprites.attack1.framesMax;
-    //       this.framesCurrent = 0;
-    //     }
-    //     break;
-    // }
   }
 }
