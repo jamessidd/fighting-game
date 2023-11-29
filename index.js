@@ -1,3 +1,5 @@
+//WITH DOUBLE JUMP
+
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d"); //c stands for context
 
@@ -16,13 +18,12 @@ const background = new Sprite({
   },
   imageSrc: './img/background.png'
 })
-
 const shop = new Sprite({
   position: {
     x: 620,
     y: 135
   },
-  imageSrc: './img/shop2.png',
+  imageSrc: './img/shop.png',
   scale: 0.9,
   framesMax: 6
 })
@@ -40,36 +41,105 @@ const player = new Fighter({
     x: 0,
     y: 0,
   },
+  canbeReversed: true,
   direction: 1,
-  imageSrc: './img/FireKnight/idle1.png',
-  imageRevSrc: './img/FireKnight/idle1r.png',
+  imageSrc: './img/FireKnight/idle.png',
   framesMax: 8,
   scale: 0.85,
   offset: {
     x: 345,
     y: 222
+  },
+  sprites: {
+    idle: {
+      imageSrc: './img/FireKnight/idle.png',
+      framesMax: 8
+    },
+    run: {
+      imageSrc: './img/FireKnight/run.png',
+      framesMax: 8
+    },
+    jump: {
+      imageSrc: './img/FireKnight/jump.png',
+      framesMax: 3
+    },
+    fall: {
+      imageSrc: './img/FireKnight/fall.png',
+      framesMax: 3
+    },
+    attack1: {
+      imageSrc: './img/FireKnight/attack1.png',
+      framesMax: 11
+    }
   }
 
 })
 console.log(player);
-
 const enemy = new Fighter({
   position: {
-    x: canvas.width - 350,
+    x: 750,
     y: 0,
   },
   velocity: {
     x: 0,
     y: 0,
   },
-  colour: "blue",
   offset: {
     x: 0,
     y: 0,
   },
+  canbeReversed: true,
   direction: 1,
-});
+  imageSrc: './img/FireKnight/idle.png',
+  framesMax: 8,
+  scale: 0.85,
+  offset: {
+    x: 345,
+    y: 222
+  },
+  sprites: {
+    idle: {
+      imageSrc: './img/FireKnight/idle.png',
+      framesMax: 8
+    },
+    run: {
+      imageSrc: './img/FireKnight/run.png',
+      framesMax: 8
+    },
+    jump: {
+      imageSrc: './img/FireKnight/jump.png',
+      framesMax: 3
+    },
+    fall: {
+      imageSrc: './img/FireKnight/fall.png',
+      framesMax: 3
+    },
+    attack1: {
+      imageSrc: './img/FireKnight/attack1.png',
+      framesMax: 11
+    }
+  }
+
+})
 console.log(enemy);
+// const enemy = new Fighter({
+//   position: {
+//     x: canvas.width - 350,
+//     y: 0,
+//   },
+//   velocity: {
+//     x: 0,
+//     y: 0,
+//   },
+//   colour: "blue",
+//   offset: {
+//     x: 0,
+//     y: 0,
+//   },
+//   canbeReversed: true,
+//   direction: 1,
+// });
+// console.log(enemy);
 
 const keys = {
   a: {
@@ -106,9 +176,8 @@ function animate() {
   msPrev = msNow - excessTime;
 
   frames++;
-  console.log(frames)
+  // console.log(msPassed, msPerFrame, msNow, excessTime)
 
-  window.requestAnimationFrame(animate);
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -118,15 +187,30 @@ function animate() {
   player.update();
   //enemy.update();
 
-  //player movement
   player.velocity.x = 0;
-  if (keys.a.pressed && player.lastkey === "a") {
-    player.velocity.x = -5;
-  } else if (keys.d.pressed && player.lastkey === "d") {
-    player.velocity.x = 5;
-  }
-  //enemy movement
   enemy.velocity.x = 0;
+
+  //player movement
+
+  if (player.canMove && keys.a.pressed && player.lastkey === "a") {
+    player.velocity.x = -5;
+    player.switchSprite('run')
+  } else if (player.canMove && keys.d.pressed && player.lastkey === "d") {
+    player.velocity.x = 5;
+    player.switchSprite('run')
+  } else {
+    player.switchSprite('idle')
+
+  }
+
+  //jump animation
+  if (player.velocity.y < 0){
+    player.switchSprite('jump')
+  } else if (player.velocity.y > 0){
+    player.switchSprite('fall')
+  }
+
+  //enemy movement
   if (keys.ArrowLeft.pressed && enemy.lastkey === "ArrowLeft") {
     enemy.velocity.x = -5;
   } else if (keys.ArrowRight.pressed && enemy.lastkey === "ArrowRight") {
@@ -148,7 +232,6 @@ function animate() {
 
     console.log("player hits enemy");
   }
-
   if (
     rectangularCollision({
       rectangle1: enemy,
@@ -178,16 +261,18 @@ window.addEventListener("keydown", (event) => {
     case "d":
       keys.d.pressed = true;
       player.lastkey = "d";
-      player.direction = 1;
+      if (! player.isAttacking)
+        player.direction = 1;
       break;
     case "a":
       keys.a.pressed = true;
       player.lastkey = "a";
-      player.direction = 0;
+      if (! player.isAttacking)
+        player.direction = 0;
 
       break;
     case "w":
-      if (player.numOfJumps > 0) {
+      if (player.canMove && player.numOfJumps > 0) {
         player.velocity.y = -10;
         player.numOfJumps -= 1;
       }
@@ -210,7 +295,7 @@ window.addEventListener("keydown", (event) => {
       break;
     case "ArrowUp":
       if (enemy.numOfJumps > 0) {
-        enemy.velocity.y = -10;
+        enemy.velocity.y = -5;
         enemy.numOfJumps -= 1;
       }
       break;
