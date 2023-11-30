@@ -1,23 +1,60 @@
+// function rectangularCollision({ rectangle1, rectangle2 }) {
+
+//   dir1 =
+//     rectangle1.attack1a.position.x + rectangle1.attack1a.width >=
+//       rectangle2.position.x &&
+//     rectangle1.attack1a.position.x <=
+//       rectangle2.position.x + rectangle2.width &&
+//     rectangle1.attack1a.position.y + rectangle1.attack1a.height >=
+//       rectangle2.position.y &&
+//     rectangle1.attack1a.position.y <=
+//       rectangle2.position.y + rectangle2.height;
+
+//   dir0 =
+//     rectangle1.attack1a.position.x <=
+//       rectangle2.position.x + rectangle2.width &&
+//     rectangle1.attack1a.position.x + rectangle1.attack1a.width >=
+//       rectangle2.position.x &&
+//     rectangle1.attack1a.position.y + rectangle1.attack1a.height >=
+//       rectangle2.position.y &&
+//     rectangle1.attack1a.position.y <=
+//       rectangle2.position.y + rectangle2.height;
+
+//   if (rectangle1.direction === 0) {
+//     return dir0;
+//   } else {
+//     return dir1;
+//   }
+// }
 function rectangularCollision({ rectangle1, rectangle2 }) {
-  dir1 =
-    rectangle1.attackBox.position.x + rectangle1.attackBox.width >=
-      rectangle2.position.x &&
-    rectangle1.attackBox.position.x <=
+
+
+  if (rectangle1.currentAttack === undefined)
+    return false
+  
+  //player striking player on right detection
+  dir0 =
+    rectangle1.currentAttack.position.x <=
       rectangle2.position.x + rectangle2.width &&
-    rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
+    rectangle1.currentAttack.position.x + rectangle1.currentAttack.width >=
+      rectangle2.position.x &&
+    rectangle1.currentAttack.position.y + rectangle1.currentAttack.height >=
       rectangle2.position.y &&
-    rectangle1.attackBox.position.y <=
+    rectangle1.currentAttack.position.y <=
       rectangle2.position.y + rectangle2.height;
 
-  dir0 =
-    rectangle1.attackBox.position.x <=
-      rectangle2.position.x + rectangle2.width &&
-    rectangle1.attackBox.position.x + rectangle1.attackBox.width >=
+  //player striking player on left detection
+  dir1 =
+    rectangle1.currentAttack.position.x + rectangle1.currentAttack.width >=
       rectangle2.position.x &&
-    rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
+    rectangle1.currentAttack.position.x <=
+      rectangle2.position.x + rectangle2.width &&
+    rectangle1.currentAttack.position.y + rectangle1.currentAttack.height >=
       rectangle2.position.y &&
-    rectangle1.attackBox.position.y <=
+    rectangle1.currentAttack.position.y <=
       rectangle2.position.y + rectangle2.height;
+
+
 
   if (rectangle1.direction === 0) {
     return dir0;
@@ -25,7 +62,6 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     return dir1;
   }
 }
-
 function determineWinner({ player, enemy, timerId }) {
   clearTimeout(timerId);
   document.querySelector("#displayText").style.display = "flex";

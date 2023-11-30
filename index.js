@@ -9,7 +9,7 @@ canvas.height = 576;
 c.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.4;
-const numOfJumps = 1;
+const numOfJumps = 2;
 
 const background = new Sprite({
   position: {
@@ -29,6 +29,8 @@ const shop = new Sprite({
 });
 
 const player = new Fighter({
+  height: 120,
+  width: 70,
   position: {
     x: 300,
     y: 0,
@@ -45,10 +47,10 @@ const player = new Fighter({
   direction: 1,
   imageSrc: "./img/FireKnight/idle.png",
   framesMax: 8,
-  scale: 0.85,
+  scale: 0.9,
   offset: {
-    x: 345,
-    y: 222,
+    x: 120 + 241,
+    y: 70 + 152,
   },
   sprites: {
     idle: {
@@ -71,6 +73,18 @@ const player = new Fighter({
       imageSrc: "./img/FireKnight/attack1.png",
       framesMax: 11,
     },
+    attack2: {
+      imageSrc: "./img/FireKnight/attack2.png",
+      framesMax: 14,
+    },
+    attack3: {
+      imageSrc: "./img/FireKnight/attack3.png",
+      framesMax: 9,
+    },
+    attack5: {
+      imageSrc: "./img/FireKnight/attack5.png",
+      framesMax: 8,
+    },
     takehit: {
       imageSrc: "./img/FireKnight/takehit.png",
       framesMax: 6,
@@ -80,19 +94,22 @@ const player = new Fighter({
       framesMax: 13,
     },
   },
-  attackBox: {
-    offset: {
-      x: 80,
-      y: 0,
-    },
-    width: 100,
-    height: 100,
-  },
+  attacks: {
+    attack1:{ id: 'attack1', offset: {x: 80, y: 0}, width: 100, height: 100, hitFrame: 5, damage: 10, duration: 900 },
+    attack2:{ id: 'attack2', offset: {x: 80, y: 35}, width: 100, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack3:{ id: 'attack3', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack4:{ id: 'attack4', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack5:{ id: 'attack5', offset: {x: 80, y: 0}, width: 200, height: 50, hitFrame: 5, damage: 10, duration: 700 }
+
+  }
+  
 });
 console.log(player);
 
 //enemy
 const enemy = new Fighter({
+  height: 95,
+  width: 45,
   position: {
     x: canvas.width - 350,
     y: 0,
@@ -109,10 +126,10 @@ const enemy = new Fighter({
   direction: 1,
   imageSrc: "./img/WaterPrincess/idle.png",
   framesMax: 8,
-  scale: 0.85,
+  scale: 0.9,
   offset: {
-    x: 345,
-    y: 222,
+    x: 80 + 241 + 43,
+    y: 45 + 152 + 50,
   },
   sprites: {
     idle: {
@@ -135,6 +152,10 @@ const enemy = new Fighter({
       imageSrc: "./img/WaterPrincess/attack1.png",
       framesMax: 7,
     },
+    attack5: {
+      imageSrc: "./img/WaterPrincess/attack5.png",
+      framesMax: 8,
+    },
     takehit: {
       imageSrc: "./img/WaterPrincess/takehit.png",
       framesMax: 6,
@@ -144,14 +165,23 @@ const enemy = new Fighter({
       framesMax: 16,
     },
   },
-  attackBox: {
-    offset: {
-      x: 0,
-      y: 0,
-    },
-    width: 175,
-    height: 50,
-  },
+  attacks: {
+    attack1:{ id: 'attack1', offset: {x: 80, y: 0}, width: 100, height: 100, hitFrame: 5, damage: 10, duration: 900 },
+    attack2:{ id: 'attack2', offset: {x: 80, y: 35}, width: 100, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack3:{ id: 'attack3', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack4:{ id: 'attack4', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 700 },
+    attack5:{ id: 'attack5', offset: {x: 80, y: 0}, width: 200, height: 50, hitFrame: 5, damage: 10, duration: 700 }
+
+  }
+  
+  // attackBox: {
+  //   offset: {
+  //     x: 0,
+  //     y: 0,
+  //   },
+  //   width: 175,
+  //   height: 50,
+  // },
 });
 console.log(enemy);
 
@@ -203,6 +233,21 @@ function animate() {
 
   player.velocity.x = 0;
   enemy.velocity.x = 0;
+  if(!player.isAttacking){
+    if (player.position.x > enemy.position.x){
+      player.direction = 0
+    } else {
+      player.direction = 1
+    }
+  }
+  if(!enemy.isAttacking){
+    if (enemy.position.x > player.position.x && !enemy.isAttacking){
+      enemy.direction = 0
+    } else {
+      enemy.direction = 1
+    }
+  }
+
 
   //player movement
 
@@ -247,7 +292,7 @@ function animate() {
   } else if (enemy.velocity.y > 2) {
     enemy.switchSprite("fall");
   }
-
+  console.log(enemy.isAttacking)
   //collision detection in attackzone
   if (
     rectangularCollision({
@@ -261,10 +306,8 @@ function animate() {
     enemy.takehit();
 
     //when enemy is hit make it face the player
-    if (!enemy.dead) {
-      if (enemy.position.x > player.position.x) enemy.direction = 0;
-      if (enemy.position.x < player.position.x) enemy.direction = 1;
-    }
+
+
     knockback(enemy, player)
     // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
     gsap.to(`#enemyHealth`, {
@@ -285,10 +328,7 @@ function animate() {
     player.takehit();
 
     //when player is hit make it face the player
-    if (!enemy.dead) {
-      if (player.position.x > enemy.position.x) player.direction = 0;
-      if (player.position.x < enemy.position.x) player.direction = 1;
-    }
+
     knockback(player, enemy)
 
     gsap.to(`#playerHealth`, {
@@ -312,12 +352,10 @@ window.addEventListener("keydown", (event) => {
       case "d":
         keys.d.pressed = true;
         player.lastkey = "d";
-        if (!player.isAttacking) player.direction = 1;
         break;
       case "a":
         keys.a.pressed = true;
         player.lastkey = "a";
-        if (!player.isAttacking) player.direction = 0;
 
         break;
       case "w":
@@ -327,7 +365,12 @@ window.addEventListener("keydown", (event) => {
         }
         break;
       case "s":
-        player.attack();
+        if (player.grounded){
+          player.attack(player.attacks.attack1);
+        } else {
+          player.attack(player.attacks.attack5);
+        }
+        
         break;
     }
   }
@@ -337,12 +380,12 @@ window.addEventListener("keydown", (event) => {
       case "ArrowRight":
         keys.ArrowRight.pressed = true;
         enemy.lastkey = "ArrowRight";
-        if (!enemy.isAttacking) enemy.direction = 1;
+
         break;
       case "ArrowLeft":
         keys.ArrowLeft.pressed = true;
         enemy.lastkey = "ArrowLeft";
-        if (!enemy.isAttacking) enemy.direction = 0;
+
 
         break;
       case "ArrowUp":
@@ -352,8 +395,17 @@ window.addEventListener("keydown", (event) => {
         }
         break;
       case "ArrowDown":
-        enemy.attack();
-        break;
+        if(enemy.canAttack){
+          if (enemy.grounded){
+            enemy.attack(enemy.attacks.attack1);
+          } else {
+            enemy.attack(enemy.attacks.attack5);
+          }
+          break;
+        }
+
+        
+
     }
   }
 });
