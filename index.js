@@ -1,5 +1,5 @@
-// import {Sprite} from "../js/classes.js";
-// import {Sprite} from "../js/classes.js";
+import * as characters from "../js/characters.js";
+import Sprite from "../js/classes.js";
 
 
 const canvas = document.querySelector("canvas");
@@ -9,9 +9,6 @@ canvas.width = 1024;
 canvas.height = 576;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
-
-const gravity = 0.4;
-const numOfJumps = 1;
 
 const background = new Sprite({
   position: {
@@ -30,169 +27,18 @@ const shop = new Sprite({
   framesMax: 6,
 });
 
-const player = new Fighter({
-  height: 120,
-  width: 70,
-  position: {
-    x: 300,
-    y: 0,
-  },
-  velocity: {
-    x: 0,
-    y: 0,
-  },
-  offset: {
-    x: 0,
-    y: 0,
-  },
-  canbeReversed: true,
-  direction: 1,
-  imageSrc: "./img/FireKnight/idle.png",
-  framesMax: 8,
-  scale: 0.9,
-  offset: {
-    x: 120 + 241,
-    y: 70 + 152,
-  },
-  sprites: {
-    idle: {
-      imageSrc: "./img/FireKnight/idle.png",
-      framesMax: 8,
-    },
-    run: {
-      imageSrc: "./img/FireKnight/run.png",
-      framesMax: 8,
-    },
-    jump: {
-      imageSrc: "./img/FireKnight/jump.png",
-      framesMax: 3,
-    },
-    fall: {
-      imageSrc: "./img/FireKnight/fall.png",
-      framesMax: 3,
-    },
-    attack1: {
-      imageSrc: "./img/FireKnight/attack1.png",
-      framesMax: 11,
-    },
-    attack2: {
-      imageSrc: "./img/FireKnight/attack2.png",
-      framesMax: 19,
-    },
-    attack3: {
-      imageSrc: "./img/FireKnight/attack3.png",
-      framesMax: 28,
-    },
-    attack4: {
-      imageSrc: "./img/FireKnight/attack4.png",
-      framesMax: 18,
-    },
-    attack5: {
-      imageSrc: "./img/FireKnight/attack5.png",
-      framesMax: 8,
-    },
-    takehit: {
-      imageSrc: "./img/FireKnight/takehit.png",
-      framesMax: 6,
-    },
-    death: {
-      imageSrc: "./img/FireKnight/death.png",
-      framesMax: 13,
-    },
-  },
-  attacks: {
-    attack1:{ id: 'attack1', offset: {x: 80, y: 0}, width: 100, height: 100, hitFrame: 5, damage: 5},
-    attack2:{ id: 'attack2', offset: {x: -95, y: 0}, width: 310, height: 100, hitFrame: 12, damage: 5},
-    attack3:{ id: 'attack3', offset: {x: 140, y: -30}, width: 130, height: 130, hitFrame: 23, damage: 5},
-    attack4:{ id: 'attack4', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 14, damage: 5},
-    attack5:{ id: 'attack5', offset: {x: 80, y: 0}, width: 200, height: 50, hitFrame: 4, damage: 5}
+const player = characters.GroundMonk
+player.position.x = 300
 
-  }
-  
-});
 console.log(player);
 
-//enemy
-const enemy = new Fighter({
-  height: 95,
-  width: 45,
-  position: {
-    x: canvas.width - 350,
-    y: 0,
-  },
-  velocity: {
-    x: 0,
-    y: 0,
-  },
-  offset: {
-    x: 0,
-    y: 0,
-  },
-  canbeReversed: true,
-  direction: 1,
-  imageSrc: "./img/WaterPrincess/idle.png",
-  framesMax: 8,
-  scale: 0.9,
-  offset: {
-    x: 80 + 241 + 43,
-    y: 45 + 152 + 50,
-  },
-  sprites: {
-    idle: {
-      imageSrc: "./img/WaterPrincess/idle.png",
-      framesMax: 8,
-    },
-    run: {
-      imageSrc: "./img/WaterPrincess/surf.png",
-      framesMax: 9,
-    },
-    jump: {
-      imageSrc: "./img/WaterPrincess/jump.png",
-      framesMax: 3,
-    },
-    fall: {
-      imageSrc: "./img/WaterPrincess/fall.png",
-      framesMax: 3,
-    },
-    attack1: {
-      imageSrc: "./img/WaterPrincess/attack1.png",
-      framesMax: 7,
-    },
-    attack2: {
-      imageSrc: "./img/WaterPrincess/attack2.png",
-      framesMax: 21,
-    },
-    attack3: {
-      imageSrc: "./img/WaterPrincess/attack3.png",
-      framesMax: 27,
-    },
-    attack4: {
-      imageSrc: "./img/WaterPrincess/attack4.png",
-      framesMax: 32,
-    },
-    attack5: {
-      imageSrc: "./img/WaterPrincess/attack5.png",
-      framesMax: 8,
-    },
-    takehit: {
-      imageSrc: "./img/WaterPrincess/takehit.png",
-      framesMax: 6,
-    },
-    death: {
-      imageSrc: "./img/WaterPrincess/death.png",
-      framesMax: 16,
-    },
-  },
-  attacks: {
-    attack1:{ id: 'attack1', offset: {x: 80, y: 10}, width: 100, height: 45, hitFrame: 3, damage: 5},
-    attack2:{ id: 'attack2', offset: {x: 0, y: 35}, width: 215, height: 50, hitFrame: 14, damage: 5},
-    attack3:{ id: 'attack3', offset: {x: 80, y: 0}, width: 200, height: 100, hitFrame: 21, damage: 5},
-    attack4:{ id: 'attack4', offset: {x: 80, y: 0}, width: 50, height: 50, hitFrame: 14, damage: 5},
-    attack5:{ id: 'attack5', offset: {x: 80, y: 0}, width: 200, height: 50, hitFrame: 3, damage: 5}
 
-  }
-  
-});
+//enemy
+const enemy = characters.WindAssassin
+enemy.position.x = canvas.width-300
+enemy.direction = 0
+
+
 console.log(enemy);
 
 const keys = {
@@ -240,30 +86,52 @@ function animate() {
   c.fillRect(0, 0, canvas.width, canvas.height);
   player.update();
   enemy.update();
-  console.log(player.sprites.attack1.image.c)
   player.velocity.x = 0;
   enemy.velocity.x = 0;
-  if(!player.isAttacking){
-    if (player.position.x > enemy.position.x){
-      player.direction = 0
-    } else {
-      player.direction = 1
-    }
-  }
-  if(!enemy.isAttacking){
-    if (enemy.position.x > player.position.x && !enemy.isAttacking){
-      enemy.direction = 0
-    } else {
-      enemy.direction = 1
-    }
-  }
+
+  // if (!player.isAttacking) {
+  //   if (player.position.x > enemy.position.x) {
+  //     player.direction = 0;
+  //   } else {
+  //     player.direction = 1;
+  //   }
+  // }
+  // if (!enemy.isAttacking) {
+  //   if (enemy.position.x > player.position.x && !enemy.isAttacking) {
+  //     enemy.direction = 0;
+  //   } else {
+  //     enemy.direction = 1;
+  //   }
+  // }
 
   //player movement
+
   if (player.canMove && keys.a.pressed && player.lastkey === "a") {
-    player.velocity.x = -5;
+    if (player.currentAttack === undefined) {
+      player.velocity.x = -player.moveSpeed;
+      if(player.currentAttack === undefined)
+        player.direction = 0;
+
+    } else {
+      player.velocity.x = -player.moveSpeed * player.attackMoveSpeed;
+      if(player.currentAttack === undefined)
+        player.direction = 0;
+
+    }
+
     if (player.grounded) player.switchSprite("run");
   } else if (player.canMove && keys.d.pressed && player.lastkey === "d") {
-    player.velocity.x = 5;
+    if (player.currentAttack === undefined) {
+      player.velocity.x = player.moveSpeed;
+      if(player.currentAttack === undefined)
+        player.direction = 1;
+
+    } else {
+      player.velocity.x = player.moveSpeed * player.attackMoveSpeed;
+      if(player.currentAttack === undefined)
+        player.direction = 1;
+
+    }
     if (player.grounded) player.switchSprite("run");
   } else if (player.grounded) {
     player.switchSprite("idle");
@@ -280,14 +148,34 @@ function animate() {
     keys.ArrowLeft.pressed &&
     enemy.lastkey === "ArrowLeft"
   ) {
-    enemy.velocity.x = -5;
+    if (enemy.currentAttack === undefined) {
+      enemy.velocity.x = -enemy.moveSpeed;
+      if(enemy.currentAttack === undefined)
+        enemy.direction = 0;
+
+    } else {
+      enemy.velocity.x = -enemy.moveSpeed * enemy.attackMoveSpeed;
+      if(enemy.currentAttack === undefined)
+        enemy.direction = 0;
+
+    }
     if (enemy.grounded) enemy.switchSprite("run");
   } else if (
     enemy.canMove &&
     keys.ArrowRight.pressed &&
     enemy.lastkey === "ArrowRight"
   ) {
-    enemy.velocity.x = 5;
+    if (enemy.currentAttack === undefined) {
+      enemy.velocity.x = enemy.moveSpeed;
+      if(enemy.currentAttack === undefined)
+        enemy.direction = 1;
+
+    } else {
+      enemy.velocity.x = enemy.moveSpeed * enemy.attackMoveSpeed;
+      if(enemy.currentAttack === undefined)
+        enemy.direction = 1;
+
+    }
     if (enemy.grounded) enemy.switchSprite("run");
   } else if (enemy.grounded) {
     enemy.switchSprite("idle");
@@ -299,9 +187,7 @@ function animate() {
   } else if (enemy.velocity.y > 2) {
     enemy.switchSprite("fall");
   }
-
-
-
+  
 
   if (
     rectangularCollision({
@@ -310,14 +196,15 @@ function animate() {
     }) &&
     player.isAttacking
   ) {
-    player.isAttacking = false
-    player.stopAttack = player.currentAttack.id
-    enemy.takehit(player.currentAttack);
-    
-    //when enemy is hit make it face the player
+    player.isAttacking = false;
+    player.stopAttack = player.currentAttack.id;
 
-    
-    knockback(enemy, player)
+    enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
+
+    enemy.takehit(player.currentAttack);
+
+
+    knockback(enemy, player);
     // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
     gsap.to(`#enemyHealth`, {
       width: enemy.health + "%",
@@ -331,14 +218,17 @@ function animate() {
     }) &&
     enemy.isAttacking
   ) {
-    enemy.isAttacking = false
-    enemy.stopAttack = enemy.currentAttack.id
+    enemy.isAttacking = false;
+    enemy.stopAttack = enemy.currentAttack.id;
+
+    player.direction = enemy.position.x >= player.position.x ? 1 : 0;
+
 
     player.takehit(enemy.currentAttack);
 
     //when player is hit make it face the player
 
-    knockback(player, enemy)
+    knockback(player, enemy);
 
     gsap.to(`#playerHealth`, {
       width: player.health + "%",
@@ -354,9 +244,8 @@ function animate() {
 
 animate();
 
-let fKeyPressed = false
-let downKeyPressed = false
-
+let sKeyPressed = false;
+let downKeyPressed = false;
 
 window.addEventListener("keydown", (event) => {
   if (player.canMove) {
@@ -376,13 +265,12 @@ window.addEventListener("keydown", (event) => {
           player.numOfJumps -= 1;
         }
         break;
-      case "f":
-        if (!fKeyPressed) {
-          fKeyPressed = true;
+      case "s":
+        if (!sKeyPressed) {
+          sKeyPressed = true;
           getAttack(player);
         }
         break;
-
     }
   }
   if (enemy.canMove) {
@@ -410,9 +298,6 @@ window.addEventListener("keydown", (event) => {
           getAttack(enemy);
         }
         break;
-
-        
-
     }
   }
 });
@@ -426,9 +311,7 @@ window.addEventListener("keyup", (event) => {
       keys.a.pressed = false;
       break;
     case "s":
-      break;
-    case "f":
-      fKeyPressed = false;
+      sKeyPressed = false;
       break;
   }
 

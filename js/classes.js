@@ -1,4 +1,8 @@
-class Sprite {
+const canvas = document.querySelector("canvas");
+const c = canvas.getContext("2d"); //c stands for context
+const gravity = 0.4;
+
+export default class Sprite {
   constructor({
     position,
     direction,
@@ -92,12 +96,14 @@ class Sprite {
   }
 }
 
-class Fighter extends Sprite {
+export class Fighter extends Sprite {
   constructor({
     height,
     width,
     position,
     velocity,
+    moveSpeed = 5,
+    attackMoveSpeed = 0.35,
     colour = "red",
     canbeReversed = true,
     direction,
@@ -163,6 +169,8 @@ class Fighter extends Sprite {
     });
 
     this.velocity = velocity;
+    this.moveSpeed = moveSpeed;
+    this.attackMoveSpeed = attackMoveSpeed;
     this.width = width;
     this.height = height;
     this.lastkey;
@@ -170,7 +178,7 @@ class Fighter extends Sprite {
     this.canAttack = true;
 
     this.grounded;
-    this.numOfJumps = numOfJumps;
+    this.numOfJumps = 1;
 
     // this.attackBox = {
     //   position: {
@@ -216,7 +224,7 @@ class Fighter extends Sprite {
     }
   }
   resetJumps() {
-    this.numOfJumps = numOfJumps;
+    this.numOfJumps = 1;
   }
 
   
@@ -240,13 +248,14 @@ class Fighter extends Sprite {
         this.attacks[attackB].position.x =
           this.position.x + this.attacks[attackB].offset.x;
       }
-      // if (this.currentAttack !== undefined)
-        // c.fillRect(
-        //   this.attacks.attack3.position.x,
-        //   this.attacks.attack3.position.y,
-        //   this.attacks.attack3.width,
-        //   this.attacks.attack3.height
-        // );
+      // c.fillStyle = "rgba(255, 255, 255, 0.1)";
+
+      //   c.fillRect(
+      //     this.attacks.attack2.position.x,
+      //     this.attacks.attack2.position.y,
+      //     this.attacks.attack2.width,
+      //     this.attacks.attack2.height
+      //   );
 
       this.attacks[attackB].position.y =
         this.position.y + this.attacks[attackB].offset.y;
@@ -273,7 +282,6 @@ class Fighter extends Sprite {
     if (this.position.x > canvas.width - this.width) {
       this.position.x = canvas.width - this.width;
     }
-
     switch (this.image) {
       case this.sprites.attack1.image:
         this.currentAttack = this.attacks.attack1;
@@ -288,11 +296,10 @@ class Fighter extends Sprite {
         break;
       case this.sprites.attack2.image:
         this.currentAttack = this.attacks.attack2;
-        if (this.framesCurrent === this.attacks.attack2.hitFrame && this.stopAttack !== 'attack2') {
+        if (this.framesCurrent === (this.attacks.attack2.hitFrame) && this.stopAttack !== 'attack2') {
           this.isAttacking = true;
         } else {
           this.isAttacking = false;
-
         }
         break;
       case this.sprites.attack3.image:
@@ -347,6 +354,8 @@ class Fighter extends Sprite {
   }
 
   takehit(atk) {
+
+
     if(this.dead)
       return
     this.canMove = false;

@@ -47,11 +47,10 @@ function getAttack(fighter) {
 
   switch (fighter.currentAttack) {
     case fighter.attacks.attack1:
-      // Wait for animation to complete before proceeding to the next attack
 
       setTimeout(() => {
 
-        if(fighter.currentAttack === fighter.attacks.attack2){
+        if(fighter.currentAttack === fighter.attacks.attack2 && fighter.attacks.attack1.hitFrame <= fighter.framesCurrent){
           setTimeout(() => {
             fighter.attack(fighter.attacks.attack3, fighter.framesCurrent, fighter.sprites.attack2.framesMax);
             return
