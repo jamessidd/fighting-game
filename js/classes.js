@@ -1,6 +1,5 @@
 class Sprite {
   constructor({
-
     position,
     direction,
     canbeReversed = false,
@@ -23,8 +22,8 @@ class Sprite {
   }
 
   draw() {
-    c.fillStyle = "red";
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    // c.fillStyle = "red";
+    // c.fillRect(this.position.x, this.position.y, this.width, this.height);
     if (this.canbeReversed) {
       if (this.direction === 0) {
         c.scale(-1, 1);
@@ -108,17 +107,51 @@ class Fighter extends Sprite {
     offset = { x: 0, y: 0 },
     sprites,
     attacks = {
-      attack1:{ id: 'attack1', offset: {}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 1000 },
-      attack2:{ id: 'attack2', offset: {}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 1000 },
-      attack3:{ id: 'attack3', offset: {}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 1000 },
-      attack4:{ id: 'attack4', offset: {}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 1000 },
-      attack5:{ id: 'attack5', offset: {}, width: 50, height: 50, hitFrame: 5, damage: 10, duration: 1000 }
-    }
-    
+      attack1: {
+        id: "attack1",
+        offset: {},
+        width: 50,
+        height: 50,
+        hitFrame: 5,
+        damage: 10
+      },
+      attack2: {
+        id: "attack2",
+        offset: {},
+        width: 50,
+        height: 50,
+        hitFrame: 5,
+        damage: 10
+      },
+      attack3: {
+        id: "attack3",
+        offset: {},
+        width: 50,
+        height: 50,
+        hitFrame: 5,
+        damage: 10
+      },
+      attack4: {
+        id: "attack4",
+        offset: {},
+        width: 50,
+        height: 50,
+        hitFrame: 5,
+        damage: 10
+      },
+      attack5: {
+        id: "attack5",
+        offset: {},
+        width: 50,
+        height: 50,
+        hitFrame: 5,
+        damage: 10
+      },
+    },
+
     // attackBox2 = { offset: {}, width: undefined, height: undefined },
     // attackBox3 = { offset: {}, width: undefined, height: undefined },
     // attackBox4 = { offset: {}, width: undefined, height: undefined },
-
   }) {
     super({
       position,
@@ -148,26 +181,26 @@ class Fighter extends Sprite {
     //   height: attackBox.height,
     //   offset: attackBox.offset,
     // };
-    
+
     this.isAttacking;
+    this.stopAttack = true;
     this.currentAttack;
     this.colour = colour;
     this.direction = direction;
     this.health = 100;
     this.framesCurrent = 0;
     this.framesElapsed = 0;
-    this.framesHold = 5;
+    this.framesHold = 4;
     this.sprites = sprites;
-    this.attacks = attacks
+    this.attacks = attacks;
     this.dead = false;
 
     for (const sprite in sprites) {
       sprites[sprite].image = new Image();
       sprites[sprite].image.src = sprites[sprite].imageSrc;
-    };
+    }
 
-    for (const attackB in attacks){
-
+    for (const attackB in attacks) {
       attacks[attackB] = {
         id: attacks[attackB].id,
         position: {
@@ -179,38 +212,44 @@ class Fighter extends Sprite {
         offset: attacks[attackB].offset,
         hitFrame: attacks[attackB].hitFrame,
         damage: attacks[attackB].damage,
-        duration: attacks[attackB].duration
-      }
-      
-    };
-
-    
+      };
+    }
   }
   resetJumps() {
     this.numOfJumps = numOfJumps;
   }
 
+  
+  
+
+
   update() {
     this.draw();
     if (!this.dead) this.animateFrames();
-    
+
     if (this.dead) this.canMove = false;
 
-    for (const attackB in this.attacks){
-    if (this.direction === 0) {
-      this.attacks[attackB].position.x =
-        this.position.x +
-        this.width -
-        this.attacks[attackB].width -
-        this.attacks[attackB].offset.x;
-    } else if (this.direction === 1) {
-      this.attacks[attackB].position.x = this.position.x + this.attacks[attackB].offset.x;
-     
+    for (const attackB in this.attacks) {
+      if (this.direction === 0) {
+        this.attacks[attackB].position.x =
+          this.position.x +
+          this.width -
+          this.attacks[attackB].width -
+          this.attacks[attackB].offset.x;
+      } else if (this.direction === 1) {
+        this.attacks[attackB].position.x =
+          this.position.x + this.attacks[attackB].offset.x;
+      }
+      // if (this.currentAttack !== undefined)
+        // c.fillRect(
+        //   this.attacks.attack3.position.x,
+        //   this.attacks.attack3.position.y,
+        //   this.attacks.attack3.width,
+        //   this.attacks.attack3.height
+        // );
 
-    }
-
-
-    this.attacks[attackB].position.y = this.position.y + this.attacks[attackB].offset.y;
+      this.attacks[attackB].position.y =
+        this.position.y + this.attacks[attackB].offset.y;
     }
 
     // console.log(player.attacks.attack1)
@@ -234,42 +273,98 @@ class Fighter extends Sprite {
     if (this.position.x > canvas.width - this.width) {
       this.position.x = canvas.width - this.width;
     }
+
+    switch (this.image) {
+      case this.sprites.attack1.image:
+        this.currentAttack = this.attacks.attack1;
+        if (this.framesCurrent === this.attacks.attack1.hitFrame && this.stopAttack !== 'attack1') {
+          this.isAttacking = true;
+        } else {
+          this.isAttacking = false;
+  
+
+        }
+
+        break;
+      case this.sprites.attack2.image:
+        this.currentAttack = this.attacks.attack2;
+        if (this.framesCurrent === this.attacks.attack2.hitFrame && this.stopAttack !== 'attack2') {
+          this.isAttacking = true;
+        } else {
+          this.isAttacking = false;
+
+        }
+        break;
+      case this.sprites.attack3.image:
+        this.currentAttack = this.attacks.attack3;
+        if (this.framesCurrent === this.attacks.attack3.hitFrame && this.stopAttack !== 'attack3') {
+          this.isAttacking = true;
+        } else {
+          this.isAttacking = false;
+
+        }
+        break;
+      case this.sprites.attack4.image:
+        this.currentAttack = this.attacks.attack4;
+        if (this.framesCurrent === this.attacks.attack4.hitFrame && this.stopAttack !== 'attack4') {
+          this.isAttacking = true;
+        } else {
+          this.isAttacking = false;
+
+        }
+        break;
+      case this.sprites.attack5.image:
+        this.currentAttack = this.attacks.attack5;
+        if (this.framesCurrent === this.attacks.attack5.hitFrame && this.stopAttack !== 'attack5') {
+          this.isAttacking = true;
+        } else {
+          this.isAttacking = false;
+
+        }
+        break;
+      default:
+        this.currentAttack = undefined;
+        this.stopAttack = true
+    }
   }
-  attack(atk) {
-    c.fillRect(atk.position.x, atk.position.y, atk.width, atk.height) 
+
+  attack(atk, framesCurrent, framesMax) {
+    // console.log(this.currentAttack)
+    if (this.currentAttack === atk) return;
+
+    // if(this.currentAttack === attack1)
+
     // this.canMove = false;
     this.canAttack = false;
-    this.switchSprite(atk.id)
-    this.currentAttack = atk
-    this.isAttacking = true;
+    this.switchSprite(atk.id, true, framesCurrent);
 
-    console.log(this.position.x, atk.position.x)
-    
+    // console.log(this.position.x, atk.position.x)
     setTimeout(() => {
-      
-      this.isAttacking = false;
-      this.currentAttack = undefined;
-      this.canAttack = true;
+      if (atk !== this.currentAttack) return;
 
-    }, atk.duration);
+      this.canAttack = true;
+    }, (framesMax - this.framesCurrent) * this.framesHold * 10);
   }
 
-  takehit() {
-    this.switchSprite("takehit",true);
+  takehit(atk) {
+    if(this.dead)
+      return
+    this.canMove = false;
+    this.switchSprite("takehit", true);
     this.isAttacking = false
-    this.health -= 10;
+    this.stopAttack = this.currentAttack
+    this.health -= atk.damage;
     setTimeout(() => {
       this.canMove = true;
-    }, 200);
+    }, 600);
   }
 
-  switchSprite(sprite, priority = false) {
-
-    if (priority){
+  switchSprite(sprite, priority = false, framesCurrent = 0) {
+    if (priority) {
       if (this.image !== this.sprites[sprite].image) {
         this.image = this.sprites[sprite].image;
         this.framesMax = this.sprites[sprite].framesMax;
-        this.framesCurrent = 0;
+        this.framesCurrent = framesCurrent;
       }
     }
     //override if fighter gets hit
@@ -290,34 +385,31 @@ class Fighter extends Sprite {
       this.framesCurrent < this.sprites.attack1.framesMax - 1
     )
       return;
-    // if (
-    //   this.image === this.sprites.attack2.image &&
-    //   this.framesCurrent < this.sprites.attack2.framesMax - 1
-    // )
-    //   return;
-    // if (
-    //   this.image === this.sprites.attack3.image &&
-    //   this.framesCurrent < this.sprites.attack3.framesMax - 1
-    // )
-    //   return;
-    // if (
-    //   this.image === this.sprites.attack4.image &&
-    //   this.framesCurrent < this.sprites.attack4.framesMax - 1
-    // )
-    //   return;
+    if (
+      this.image === this.sprites.attack2.image &&
+      this.framesCurrent < this.sprites.attack2.framesMax - 1
+    )
+      return;
+    if (
+      this.image === this.sprites.attack3.image &&
+      this.framesCurrent < this.sprites.attack3.framesMax - 1
+    )
+      return;
+    if (
+      this.image === this.sprites.attack4.image &&
+      this.framesCurrent < this.sprites.attack4.framesMax - 1
+    )
+      return;
     if (
       this.image === this.sprites.attack5.image &&
       this.framesCurrent < this.sprites.attack5.framesMax - 1
     )
       return;
 
-
-
     if (this.image !== this.sprites[sprite].image) {
       this.image = this.sprites[sprite].image;
       this.framesMax = this.sprites[sprite].framesMax;
       this.framesCurrent = 0;
     }
-
   }
 }
