@@ -1,6 +1,7 @@
-const canvas = document.querySelector("canvas");
-const c = canvas.getContext("2d"); //c stands for context
-const gravity = 0.4;
+
+export const canvas = document.querySelector("canvas");
+export const c = canvas.getContext("2d"); //c stands for context
+export const gravity = 0.4;
 
 export default class Sprite {
   constructor({
@@ -118,40 +119,49 @@ export class Fighter extends Sprite {
         offset: {},
         width: 50,
         height: 50,
-        hitFrame: 5,
-        damage: 10
+        hitFrame: [],
+        damage: 10,
+        knockback: 10
+
       },
       attack2: {
         id: "attack2",
         offset: {},
         width: 50,
         height: 50,
-        hitFrame: 5,
-        damage: 10
+        hitFrame: [],
+        damage: 10,
+        knockback: 10
+
       },
       attack3: {
         id: "attack3",
         offset: {},
         width: 50,
         height: 50,
-        hitFrame: 5,
-        damage: 10
+        hitFrame: [],
+        damage: 10,
+        knockback: 10
       },
       attack4: {
         id: "attack4",
         offset: {},
         width: 50,
         height: 50,
-        hitFrame: 5,
-        damage: 10
+        hitFrame: [],
+        damage: 10,
+        knockback: 10
+
       },
       attack5: {
         id: "attack5",
         offset: {},
         width: 50,
         height: 50,
-        hitFrame: 5,
-        damage: 10
+        hitFrame: [],
+        damage: 10,
+        knockback: 10
+
       },
     },
 
@@ -191,7 +201,7 @@ export class Fighter extends Sprite {
     // };
 
     this.isAttacking;
-    this.stopAttack = true;
+    this.stopAttack = {};
     this.currentAttack;
     this.colour = colour;
     this.direction = direction;
@@ -220,6 +230,7 @@ export class Fighter extends Sprite {
         offset: attacks[attackB].offset,
         hitFrame: attacks[attackB].hitFrame,
         damage: attacks[attackB].damage,
+        knockback: attacks[attackB].knockback,
       };
     }
   }
@@ -251,10 +262,10 @@ export class Fighter extends Sprite {
       // c.fillStyle = "rgba(255, 255, 255, 0.1)";
 
       //   c.fillRect(
-      //     this.attacks.attack2.position.x,
-      //     this.attacks.attack2.position.y,
-      //     this.attacks.attack2.width,
-      //     this.attacks.attack2.height
+      //     this.attacks.attack4.position.x,
+      //     this.attacks.attack4.position.y,
+      //     this.attacks.attack4.width,
+      //     this.attacks.attack4.height
       //   );
 
       this.attacks[attackB].position.y =
@@ -274,78 +285,110 @@ export class Fighter extends Sprite {
       this.velocity.y += gravity;
       this.grounded = false;
     }
-    //make sure players dont move past wall bounds
+    //make sure players dont move past wall bounds left
     if (this.position.x < 0) {
       this.position.x = 0;
     }
-
+    //make sure players dont move past wall bounds right
     if (this.position.x > canvas.width - this.width) {
       this.position.x = canvas.width - this.width;
     }
+
+    if (this.image === this.sprites.attack4.image){
+      this.framesHold = 6
+    } else {
+      this.framesHold = 4
+    }
+
     switch (this.image) {
       case this.sprites.attack1.image:
         this.currentAttack = this.attacks.attack1;
-        if (this.framesCurrent === this.attacks.attack1.hitFrame && this.stopAttack !== 'attack1') {
-          this.isAttacking = true;
-        } else {
-          this.isAttacking = false;
-  
 
+        for (const i in this.attacks.attack1.hitFrame){
+          if (this.framesCurrent === this.attacks.attack1.hitFrame[i]) {
+            this.isAttacking = true;
+            break;
+          } else {
+            this.isAttacking = false;
+          }
         }
-
         break;
       case this.sprites.attack2.image:
         this.currentAttack = this.attacks.attack2;
-        if (this.framesCurrent === (this.attacks.attack2.hitFrame) && this.stopAttack !== 'attack2') {
-          this.isAttacking = true;
-        } else {
-          this.isAttacking = false;
+        for (const i in this.attacks.attack2.hitFrame){
+
+          if (this.framesCurrent === this.attacks.attack2.hitFrame[i]) {
+
+            this.isAttacking = true;
+            break;
+
+          } else {
+            this.isAttacking = false;
+          }
         }
         break;
+
       case this.sprites.attack3.image:
         this.currentAttack = this.attacks.attack3;
-        if (this.framesCurrent === this.attacks.attack3.hitFrame && this.stopAttack !== 'attack3') {
-          this.isAttacking = true;
-        } else {
-          this.isAttacking = false;
+        for (const i in this.attacks.attack3.hitFrame){
 
+          if (this.framesCurrent === this.attacks.attack3.hitFrame[i]) {
+            this.isAttacking = true;
+            break;
+          } else {
+            this.isAttacking = false;
+
+          }
         }
         break;
       case this.sprites.attack4.image:
         this.currentAttack = this.attacks.attack4;
-        if (this.framesCurrent === this.attacks.attack4.hitFrame && this.stopAttack !== 'attack4') {
-          this.isAttacking = true;
-        } else {
-          this.isAttacking = false;
+        this.canAttack = false
+        
 
+        for (const i in this.attacks.attack4.hitFrame){
+
+          if (this.framesCurrent === this.attacks.attack4.hitFrame[i]) {
+            this.isAttacking = true;
+            break;
+          } else {
+            this.isAttacking = false;
+
+          }
         }
         break;
       case this.sprites.attack5.image:
         this.currentAttack = this.attacks.attack5;
-        if (this.framesCurrent === this.attacks.attack5.hitFrame && this.stopAttack !== 'attack5') {
-          this.isAttacking = true;
-        } else {
-          this.isAttacking = false;
+        for (const i in this.attacks.attack5.hitFrame){
 
+          if (this.framesCurrent === this.attacks.attack5.hitFrame[i]) {
+            this.isAttacking = true;
+            break;
+          } else {
+            this.isAttacking = false;
+
+          }
         }
         break;
       default:
         this.currentAttack = undefined;
         this.stopAttack = true
+        this.canAttack = true
+        
+
     }
   }
 
   attack(atk, framesCurrent, framesMax) {
-    // console.log(this.currentAttack)
+
     if (this.currentAttack === atk) return;
 
-    // if(this.currentAttack === attack1)
 
-    // this.canMove = false;
+
     this.canAttack = false;
     this.switchSprite(atk.id, true, framesCurrent);
 
-    // console.log(this.position.x, atk.position.x)
+
     setTimeout(() => {
       if (atk !== this.currentAttack) return;
 
@@ -359,6 +402,7 @@ export class Fighter extends Sprite {
     if(this.dead)
       return
     this.canMove = false;
+    this.framesCurrent = 0
     this.switchSprite("takehit", true);
     this.isAttacking = false
     this.stopAttack = this.currentAttack

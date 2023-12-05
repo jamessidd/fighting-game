@@ -79,40 +79,49 @@ export var FireKnight = new Fighter({
       offset: { x: 80, y: 0 },
       width: 100,
       height: 100,
-      hitFrame: 5,
+      hitFrame: [5],
       damage: 5,
+      knockback: 10
     },
     attack2: {
       id: "attack2",
       offset: { x: -95, y: 0 },
       width: 310,
       height: 100,
-      hitFrame: 12,
-      damage: 5,
+      hitFrame: [5,12,16],
+      damage: 3,
+      knockback: 10
+
     },
     attack3: {
       id: "attack3",
       offset: { x: 140, y: -30 },
       width: 130,
       height: 130,
-      hitFrame: 23,
+      hitFrame: [5,12,16,23],
       damage: 5,
+      knockback: 10
+
     },
     attack4: {
       id: "attack4",
-      offset: { x: 80, y: 0 },
-      width: 50,
-      height: 50,
-      hitFrame: 14,
-      damage: 5,
+      offset: { x: 145, y: -30 },
+      width: 150,
+      height: 150,
+      hitFrame: [12],
+      damage: 30,
+      knockback: 10
+
     },
     attack5: {
       id: "attack5",
       offset: { x: 80, y: 0 },
       width: 200,
       height: 50,
-      hitFrame: 4,
+      hitFrame: [4],
       damage: 5,
+      knockback: 10
+
     },
   },
 });
@@ -195,40 +204,50 @@ export var WaterPrincess = new Fighter({
         offset: { x: 80, y: 10 },
         width: 100,
         height: 45,
-        hitFrame: 3,
+        hitFrame: [3],
         damage: 5,
+        knockback: 10
+
       },
       attack2: {
         id: "attack2",
         offset: { x: 0, y: 35 },
         width: 215,
         height: 50,
-        hitFrame: 14,
+        hitFrame: [3,14],
         damage: 5,
+        knockback: 10
+
       },
       attack3: {
         id: "attack3",
         offset: { x: 80, y: 0 },
         width: 200,
         height: 100,
-        hitFrame: 21,
+        hitFrame: [3,14,21],
         damage: 5,
+        knockback: 10
+
       },
       attack4: {
         id: "attack4",
-        offset: { x: 80, y: 0 },
-        width: 50,
-        height: 50,
-        hitFrame: 14,
-        damage: 5,
+        offset: { x: 80, y: -30 },
+        width: 220,
+        height: 150,
+        hitFrame: [12,22],
+        damage: 15,
+        knockback: 10
+
       },
       attack5: {
         id: "attack5",
         offset: { x: 80, y: 0 },
         width: 200,
         height: 50,
-        hitFrame: 4,
+        hitFrame: [4],
         damage: 5,
+        knockback: 10
+
       },
     },
   });
@@ -314,40 +333,45 @@ export var MetalBladeMaster = new Fighter({
       offset: { x: 40, y: 20 },
       width: 110,
       height: 45,
-      hitFrame: 3,
+      hitFrame: [3],
       damage: 2,
+      knockback: 5
     },
     attack2: {
       id: "attack2",
       offset: { x: 40, y: 20 },
       width: 125,
       height: 45,
-      hitFrame: 5,
-      damage: 5,
+      hitFrame: [3,5],
+      damage: 4,
+      knockback: 5
     },
     attack3: {
       id: "attack3",
       offset: { x: 0, y: -40 },
       width: 185,
       height: 150,
-      hitFrame: 13,
-      damage: 5,
+      hitFrame: [3,5,12,14,16],
+      damage: 4,
+      knockback: 5
     },
     attack4: {
       id: "attack4",
-      offset: { x: 80, y: 0 },
-      width: 50,
-      height: 50,
-      hitFrame: 14,
-      damage: 5,
+      offset: { x: -200, y: -50 },
+      width: 500,
+      height: 150,
+      hitFrame: [4],
+      damage: 18,
+      knockback: 50
     },
     attack5: {
       id: "attack5",
       offset: { x: 80, y: -20 },
       width: 120,
       height: 70,
-      hitFrame: 2,
-      damage: 5,
+      hitFrame: [3,6],
+      damage: 3,
+      knockback: 5
     },
   },
 });
@@ -432,40 +456,45 @@ export var WindAssassin = new Fighter({
       offset: { x: 40, y: 20 },
       width: 70,
       height: 45,
-      hitFrame: 3,
+      hitFrame: [1,3],
       damage: 2,
+      knockback: 10
     },
     attack2: {
       id: "attack2",
       offset: { x: 40, y: -10 },
       width: 125,
       height: 120,
-      hitFrame: 10,
-      damage: 5,
+      hitFrame: [1,3,8,10,12],
+      damage: 2.5,
+      knockback: 10
     },
     attack3: {
       id: "attack3",
       offset: { x: 175, y: -40 },
       width: 130,
       height: 150,
-      hitFrame: 20,
-      damage: 5,
+      hitFrame: [20],
+      damage: 12,
+      knockback: 10
     },
     attack4: {
       id: "attack4",
-      offset: { x: 80, y: 0 },
-      width: 50,
-      height: 50,
-      hitFrame: 14,
+      offset: { x: -50, y: 0 },
+      width: 175,
+      height: 100,
+      hitFrame: [11,17,20],
       damage: 5,
+      knockback: 10
     },
     attack5: {
       id: "attack5",
       offset: { x: 80, y: -35 },
       width: 100,
       height: 145,
-      hitFrame: 2,
+      hitFrame: [2],
       damage: 5,
+      knockback: 10
     },
   },
 });
@@ -551,40 +580,45 @@ export var GroundMonk = new Fighter({
       offset: { x: 60, y: 0 },
       width: 70,
       height: 65,
-      hitFrame: 3,
+      hitFrame: [3],
       damage: 2,
+      knockback: 5
     },
     attack2: {
       id: "attack2",
       offset: { x: 60, y: 0 },
       width: 70,
       height: 65,
-      hitFrame: 3,
+      hitFrame: [3,6,9],
       damage: 2,
+      knockback: 10
     },
     attack3: {
       id: "attack3",
-      offset: { x: 175, y: -40 },
+      offset: { x: 139, y: -40 },
       width: 130,
-      height: 150,
-      hitFrame: 20,
+      height: 125,
+      hitFrame: [18],
       damage: 5,
+      knockback: 55
     },
     attack4: {
       id: "attack4",
       offset: { x: 80, y: 0 },
       width: 50,
       height: 50,
-      hitFrame: 14,
+      hitFrame: [11,17,20],
       damage: 5,
+      knockback: 20
     },
     attack5: {
       id: "attack5",
       offset: { x: 80, y: -35 },
       width: 100,
       height: 145,
-      hitFrame: 2,
+      hitFrame: [2],
       damage: 5,
+      knockback: 3
     },
   },
 });

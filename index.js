@@ -1,5 +1,6 @@
 import * as characters from "../js/characters.js";
 import Sprite from "../js/classes.js";
+import Fighter from "../js/classes.js";
 
 
 const canvas = document.querySelector("canvas");
@@ -27,14 +28,16 @@ const shop = new Sprite({
   framesMax: 6,
 });
 
-const player = characters.GroundMonk
+const player = characters.WindAssassin;
+
 player.position.x = 300
 
 console.log(player);
 
 
 //enemy
-const enemy = characters.WindAssassin
+const enemy = characters.GroundMonk;
+
 enemy.position.x = canvas.width-300
 enemy.direction = 0
 
@@ -72,10 +75,11 @@ function animate() {
   if (msPassed < msPerFrame) return;
 
   const excessTime = msPassed % msPerFrame;
+  const deltaTime = msPassed / 1000;
+
   msPrev = msNow - excessTime;
 
   frames++;
-  // console.log(msPassed, msPerFrame, msNow, excessTime)
 
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
@@ -187,54 +191,86 @@ function animate() {
   } else if (enemy.velocity.y > 2) {
     enemy.switchSprite("fall");
   }
+
+
+  //windAssassinSpecial
+  if(player.currentAttack !== undefined){
+    if(player.currentAttack.id === 'attack4' && player.sprites.attack4.imageSrc === './img/WindAssassin/attack4.png' && (player.framesCurrent === 1))
+      WASpecialMove(player, player.position.x ,enemy.position.x)
+      
+  }
+  if(enemy.currentAttack !== undefined){
+    if(enemy.currentAttack.id === 'attack4' && enemy.sprites.attack4.imageSrc === './img/WindAssassin/attack4.png' && (enemy.framesCurrent === 1))
+      WASpecialMove(enemy, enemy.position.x ,player.position.x)
+      
+  }
+
+  //groundMonkSpecial
+  if(player.currentAttack !== undefined){
+    if(player.currentAttack.id === 'attack4' && player.sprites.attack4.imageSrc === './img/GroundMonk/attack4.png' && (player.framesCurrent === 1))
+      GMSpecialMove(player, enemy)
+      
+  }
+  if(enemy.currentAttack !== undefined){
+    if(enemy.currentAttack.id === 'attack4' && enemy.sprites.attack4.imageSrc === './img/GroundMonk/attack4.png' && (enemy.framesCurrent === 1))
+      GMSpecialMove(enemy, player)
+      
+  }
+
+  if (frames % player.framesHold === 0){
+
+    if (
+      rectangularCollision({
+        rectangle1: player,
+        rectangle2: enemy,
+      }) &&
+      player.isAttacking
+    ) {
+      // player.isAttacking = false;
+      // player.stopAttack = player.currentAttack.id;
   
+      enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
+  
+      enemy.takehit(player.currentAttack);
+  
+  
+      knockback(enemy, player, deltaTime);
+      // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
+      gsap.to(`#enemyHealth`, {
+        width: enemy.health + "%",
+      });
+      console.log("player hits enemy");
+    }
 
-  if (
-    rectangularCollision({
-      rectangle1: player,
-      rectangle2: enemy,
-    }) &&
-    player.isAttacking
-  ) {
-    player.isAttacking = false;
-    player.stopAttack = player.currentAttack.id;
-
-    enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
-
-    enemy.takehit(player.currentAttack);
-
-
-    knockback(enemy, player);
-    // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
-    gsap.to(`#enemyHealth`, {
-      width: enemy.health + "%",
-    });
-    console.log("player hits enemy");
   }
-  if (
-    rectangularCollision({
-      rectangle1: enemy,
-      rectangle2: player,
-    }) &&
-    enemy.isAttacking
-  ) {
-    enemy.isAttacking = false;
-    enemy.stopAttack = enemy.currentAttack.id;
-
-    player.direction = enemy.position.x >= player.position.x ? 1 : 0;
-
-
-    player.takehit(enemy.currentAttack);
-
-    //when player is hit make it face the player
-
-    knockback(player, enemy);
-
-    gsap.to(`#playerHealth`, {
-      width: player.health + "%",
-    });
-    console.log("enemy hits player");
+  
+  if (frames % enemy.framesHold === 0){
+    if (
+      rectangularCollision({
+        rectangle1: enemy,
+        rectangle2: player,
+      }) &&
+      enemy.isAttacking
+    ) {
+      enemy.isAttacking = false;
+      enemy.stopAttack = enemy.currentAttack.id;
+  
+      player.direction = enemy.position.x >= player.position.x ? 1 : 0;
+  
+  
+      player.takehit(enemy.currentAttack);
+  
+      //when player is hit make it face the player
+  
+      knockback(player, enemy, deltaTime);
+  
+      gsap.to(`#playerHealth`, {
+        width: player.health + "%",
+      });
+      console.log("enemy hits player");
+    }
   }
+  
 
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {
@@ -245,7 +281,11 @@ function animate() {
 animate();
 
 let sKeyPressed = false;
+let fKeyPressed = false;
+
 let downKeyPressed = false;
+let zeroKeyPressed = false;
+
 
 window.addEventListener("keydown", (event) => {
   if (player.canMove) {
@@ -269,6 +309,12 @@ window.addEventListener("keydown", (event) => {
         if (!sKeyPressed) {
           sKeyPressed = true;
           getAttack(player);
+        }
+        break;
+      case "f":
+        if (!fKeyPressed) {
+          fKeyPressed = true;
+          getAttack(player, true);
         }
         break;
     }
@@ -313,6 +359,9 @@ window.addEventListener("keyup", (event) => {
     case "s":
       sKeyPressed = false;
       break;
+    case "f":
+      fKeyPressed = false;
+      break;
   }
 
   //enemy Keys
@@ -328,3 +377,68 @@ window.addEventListener("keyup", (event) => {
       break;
   }
 });
+
+function WASpecialMove(fighter, startPos, fighter2Pos){
+
+  fighter.canMove = false
+  fighter.canMove = false
+  setTimeout(() => {
+
+    fighter.position.x = fighter2Pos
+  }, 500);
+
+  setTimeout(() => {
+    console.log('fin')
+
+    fighter.position.x = startPos
+    fighter.canMove = true
+  }, 2300);
+
+}
+
+function GMSpecialMove(fighter, fighter2){
+  fighter.canMove = false
+  if(fighter.position.x < fighter2.position.x){
+    if(fighter.position.x + 225 > fighter2.position.x){
+      fighter2.canMove = false
+
+      setTimeout(() => {
+        fighter2.position.x = fighter.position.x + 85
+
+        setTimeout(() => {
+          fighter.canMove = true
+          fighter2.canMove = true
+          return
+        }, 2200);
+
+      }, 300);
+      
+      console.log('colide')
+    }
+  }
+  if(fighter.position.x > fighter2.position.x){
+    if(fighter.position.x - 225 > fighter2.position.x){
+      fighter2.canMove = false
+
+      setTimeout(() => {
+        fighter2.position.x = fighter.position.x - 85
+  
+        setTimeout(() => {
+          fighter.canMove = true
+          fighter2.canMove = true
+          return
+        }, 2200);
+  
+      }, 300);
+        
+    }
+
+  }
+
+
+  
+  setTimeout(() => {
+    fighter.canMove = true
+    return
+  }, 2000);
+}

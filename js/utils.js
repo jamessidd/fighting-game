@@ -36,21 +36,39 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
   }
 }
 
-function getAttack(fighter) {
+function fighterCollision(rect1, rect2) {
+  return (
+    rect1.position.x < rect2.position.x + rect2.width &&
+    rect1.position.x + rect1.width > rect2.position.x &&
+    rect1.position.y < rect2.position.y + rect2.height &&
+    rect1.position.y + rect1.height > rect2.position.y
+  );
+}
+
+function getAttack(fighter, specialAttack = false) {
+
+  if (specialAttack){
+    if(!fighter.grounded)
+      return
+
+    fighter.attack(fighter.attacks.attack4, 0, fighter.sprites.attack4.framesMax);
+    return
+  }
 
   if (!fighter.grounded) {
-    if (fighter.canAttack) {
+    if(fighter.canAttack)
       fighter.attack(fighter.attacks.attack5, fighter.framesCurrent, fighter.sprites.attack5.framesMax);
-    }
     return;
   }
+
+ 
 
   switch (fighter.currentAttack) {
     case fighter.attacks.attack1:
 
       setTimeout(() => {
 
-        if(fighter.currentAttack === fighter.attacks.attack2 && fighter.attacks.attack1.hitFrame <= fighter.framesCurrent){
+        if(fighter.currentAttack === fighter.attacks.attack2){
           setTimeout(() => {
             fighter.attack(fighter.attacks.attack3, fighter.framesCurrent, fighter.sprites.attack2.framesMax);
             return
@@ -85,6 +103,8 @@ function getAttack(fighter) {
 }
 
 
+
+
 function determineWinner({ player, enemy, timerId }) {
   clearTimeout(timerId);
   document.querySelector("#displayText").style.display = "flex";
@@ -116,18 +136,20 @@ function decreaseTimer() {
   }
 }
 
-function knockback(fighterhit, fighter2){
-
+function knockback(fighterhit, fighter2, dt){
+  
   if(fighterhit.dead)
     return
   if (fighterhit.position.x > fighter2.position.x){
-    fighterhit.velocity.x += 25
-    fighterhit.velocity.y -= 3
+    fighterhit.velocity.x += fighter2.currentAttack.knockback * 50 * dt
+    fighterhit.velocity.y -= 2
+    
+
 
   }
   if (fighterhit.position.x < fighter2.position.x){
-    fighterhit.velocity.x -= 25
-    fighterhit.velocity.y -= 3
+    fighterhit.velocity.x -= fighter2.currentAttack.knockback * 50 * dt
+    fighterhit.velocity.y -= 2
 
   }
 }
