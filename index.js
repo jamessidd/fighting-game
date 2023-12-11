@@ -28,7 +28,7 @@ const shop = new Sprite({
   framesMax: 6,
 });
 
-const player = characters.WindAssassin;
+const player = characters.FireKnight;
 
 player.position.x = 300
 
@@ -36,7 +36,7 @@ console.log(player);
 
 
 //enemy
-const enemy = characters.GroundMonk;
+const enemy = characters.WaterPrincess;
 
 enemy.position.x = canvas.width-300
 enemy.direction = 0
@@ -88,6 +88,7 @@ function animate() {
   shop.update();
   c.fillStyle = `rgba(255,255,255,0.15)`;
   c.fillRect(0, 0, canvas.width, canvas.height);
+  
   player.update();
   enemy.update();
   player.velocity.x = 0;
@@ -271,7 +272,7 @@ function animate() {
     }
   }
   
-
+  console.log(player.currentAttack)
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {
     determineWinner({ player, enemy, timerId });
@@ -284,7 +285,7 @@ let sKeyPressed = false;
 let fKeyPressed = false;
 
 let downKeyPressed = false;
-let zeroKeyPressed = false;
+let slashKeyPressed = false;
 
 
 window.addEventListener("keydown", (event) => {
@@ -308,15 +309,16 @@ window.addEventListener("keydown", (event) => {
       case "s":
         if (!sKeyPressed) {
           sKeyPressed = true;
-          getAttack(player);
+          getAttack(player,enemy);
         }
         break;
       case "f":
         if (!fKeyPressed) {
           fKeyPressed = true;
-          getAttack(player, true);
+          getAttack(player,enemy, true);
         }
         break;
+      
     }
   }
   if (enemy.canMove) {
@@ -341,7 +343,13 @@ window.addEventListener("keydown", (event) => {
       case "ArrowDown":
         if (!downKeyPressed) {
           downKeyPressed = true;
-          getAttack(enemy);
+          getAttack(enemy,player);
+        }
+        break;
+      case "/":
+        if (!slashKeyPressed) {
+          slashKeyPressed = true;
+          getAttack(enemy,player,true);
         }
         break;
     }
@@ -375,8 +383,36 @@ window.addEventListener("keyup", (event) => {
     case "ArrowDown":
       downKeyPressed = false;
       break;
+    case "/":
+      slashKeyPressed = false;
+      break;
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//extra special move logic
 
 function WASpecialMove(fighter, startPos, fighter2Pos){
 
@@ -398,7 +434,7 @@ function WASpecialMove(fighter, startPos, fighter2Pos){
 
 function GMSpecialMove(fighter, fighter2){
   fighter.canMove = false
-  if(fighter.position.x < fighter2.position.x){
+  if(fighter.position.x < fighter2.position.x && fighter.direction === 1){
     if(fighter.position.x + 225 > fighter2.position.x){
       fighter2.canMove = false
 
@@ -416,8 +452,8 @@ function GMSpecialMove(fighter, fighter2){
       console.log('colide')
     }
   }
-  if(fighter.position.x > fighter2.position.x){
-    if(fighter.position.x - 225 > fighter2.position.x){
+  if(fighter.position.x > fighter2.position.x && fighter.direction === 0){
+    if(fighter.position.x - 225 < fighter2.position.x + fighter2.width){
       fighter2.canMove = false
 
       setTimeout(() => {
@@ -434,9 +470,6 @@ function GMSpecialMove(fighter, fighter2){
     }
 
   }
-
-
-  
   setTimeout(() => {
     fighter.canMove = true
     return

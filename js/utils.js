@@ -1,10 +1,6 @@
-
-
-
 function rectangularCollision({ rectangle1, rectangle2 }) {
-  if (rectangle1.currentAttack === undefined)
-    return false
-  
+  if (rectangle1.currentAttack === undefined) return false;
+
   // console.log(rectangle1.image)
 
   //player striking player on right detection
@@ -45,65 +41,92 @@ function fighterCollision(rect1, rect2) {
   );
 }
 
-function getAttack(fighter, specialAttack = false) {
+function getAttack(fighter, fighter2, specialAttack = false) {
+  if (specialAttack) {
+    if (!fighter.grounded) return;
 
-  if (specialAttack){
-    if(!fighter.grounded)
-      return
-
-    fighter.attack(fighter.attacks.attack4, 0, fighter.sprites.attack4.framesMax);
-    return
-  }
-
-  if (!fighter.grounded) {
-    if(fighter.canAttack)
-      fighter.attack(fighter.attacks.attack5, fighter.framesCurrent, fighter.sprites.attack5.framesMax);
+    fighter.attack(
+      fighter.attacks.attack4,
+      0,
+      fighter.sprites.attack4.framesMax
+    );
     return;
   }
 
- 
+  if (!fighter.grounded) {
+    if (fighter.canAttack)
+      fighter.attack(
+        fighter.attacks.attack5,
+        fighter.framesCurrent,
+        fighter.sprites.attack5.framesMax
+      );
+    return;
+  }
 
   switch (fighter.currentAttack) {
     case fighter.attacks.attack1:
-
       setTimeout(() => {
-
-        if(fighter.currentAttack === fighter.attacks.attack2){
+        if (fighter.currentAttack === fighter.attacks.attack2) {
           setTimeout(() => {
-            fighter.attack(fighter.attacks.attack3, fighter.framesCurrent, fighter.sprites.attack2.framesMax);
-            return
-        
-          }, ((fighter.sprites.attack2.framesMax - fighter.framesCurrent) * fighter.framesHold * 10));
-          
+            if (
+              rectangularCollision({
+                rectangle1: fighter,
+                rectangle2: fighter2,
+              })
+            )
+            fighter.attack(
+              fighter.attacks.attack3,
+              fighter.framesCurrent,
+              fighter.sprites.attack2.framesMax
+            );
+            return;
+          }, (fighter.sprites.attack2.framesMax - fighter.framesCurrent) * fighter.framesHold * 10);
         }
-
-        fighter.attack(fighter.attacks.attack2, fighter.framesCurrent, fighter.sprites.attack1.framesMax);
-        return
-    
-      }, ((fighter.sprites.attack1.framesMax - fighter.framesCurrent) * fighter.framesHold * 10));
+        if (
+          rectangularCollision({
+            rectangle1: fighter,
+            rectangle2: fighter2,
+          })
+        )
+          fighter.attack(
+            fighter.attacks.attack2,
+            fighter.framesCurrent,
+            fighter.sprites.attack1.framesMax
+          );
+        return;
+      }, (fighter.sprites.attack1.framesMax - fighter.framesCurrent) * fighter.framesHold * 10);
       break;
 
     case fighter.attacks.attack2:
       setTimeout(() => {
-
-        fighter.attack(fighter.attacks.attack3, fighter.framesCurrent, fighter.sprites.attack2.framesMax);
-        return
-    
-      }, ((fighter.sprites.attack2.framesMax - fighter.framesCurrent) * fighter.framesHold * 10));
+        if (
+          rectangularCollision({
+            rectangle1: fighter,
+            rectangle2: fighter2,
+          })
+        )
+        fighter.attack(
+          fighter.attacks.attack3,
+          fighter.framesCurrent,
+          fighter.sprites.attack2.framesMax
+        );
+        return;
+      }, (fighter.sprites.attack2.framesMax - fighter.framesCurrent) * fighter.framesHold * 10);
       break;
 
     case fighter.attacks.attack3:
       return;
 
     default:
-      fighter.attack(fighter.attacks.attack1, 0, fighter.sprites.attack1.framesMax);
+      fighter.attack(
+        fighter.attacks.attack1,
+        0,
+        fighter.sprites.attack1.framesMax
+      );
   }
 
   return;
 }
-
-
-
 
 function determineWinner({ player, enemy, timerId }) {
   clearTimeout(timerId);
@@ -136,21 +159,14 @@ function decreaseTimer() {
   }
 }
 
-function knockback(fighterhit, fighter2, dt){
-  
-  if(fighterhit.dead)
-    return
-  if (fighterhit.position.x > fighter2.position.x){
-    fighterhit.velocity.x += fighter2.currentAttack.knockback * 50 * dt
-    fighterhit.velocity.y -= 2
-    
-
-
+function knockback(fighterhit, fighter2, dt) {
+  if (fighterhit.dead) return;
+  if (fighterhit.position.x > fighter2.position.x) {
+    fighterhit.velocity.x += fighter2.currentAttack.knockback * 50 * dt;
+    fighterhit.velocity.y -= 2;
   }
-  if (fighterhit.position.x < fighter2.position.x){
-    fighterhit.velocity.x -= fighter2.currentAttack.knockback * 50 * dt
-    fighterhit.velocity.y -= 2
-
+  if (fighterhit.position.x < fighter2.position.x) {
+    fighterhit.velocity.x -= fighter2.currentAttack.knockback * 50 * dt;
+    fighterhit.velocity.y -= 2;
   }
 }
-

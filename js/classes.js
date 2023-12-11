@@ -262,10 +262,10 @@ export class Fighter extends Sprite {
       // c.fillStyle = "rgba(255, 255, 255, 0.1)";
 
       //   c.fillRect(
-      //     this.attacks.attack4.position.x,
-      //     this.attacks.attack4.position.y,
-      //     this.attacks.attack4.width,
-      //     this.attacks.attack4.height
+      //     this.attacks.attack5.position.x,
+      //     this.attacks.attack5.position.y,
+      //     this.attacks.attack5.width,
+      //     this.attacks.attack5.height
       //   );
 
       this.attacks[attackB].position.y =

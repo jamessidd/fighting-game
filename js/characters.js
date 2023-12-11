@@ -458,7 +458,7 @@ export var WindAssassin = new Fighter({
       height: 45,
       hitFrame: [1,3],
       damage: 2,
-      knockback: 10
+      knockback: 2
     },
     attack2: {
       id: "attack2",
@@ -467,7 +467,7 @@ export var WindAssassin = new Fighter({
       height: 120,
       hitFrame: [1,3,8,10,12],
       damage: 2.5,
-      knockback: 10
+      knockback: 20
     },
     attack3: {
       id: "attack3",
@@ -476,7 +476,7 @@ export var WindAssassin = new Fighter({
       height: 150,
       hitFrame: [20],
       damage: 12,
-      knockback: 10
+      knockback: 25
     },
     attack4: {
       id: "attack4",
@@ -608,7 +608,7 @@ export var GroundMonk = new Fighter({
       width: 50,
       height: 50,
       hitFrame: [11,17,20],
-      damage: 5,
+      damage: 9,
       knockback: 20
     },
     attack5: {
@@ -617,6 +617,129 @@ export var GroundMonk = new Fighter({
       width: 100,
       height: 145,
       hitFrame: [2],
+      damage: 5,
+      knockback: 3
+    },
+  },
+});
+
+//----------------CRYSTAL MAULER------------------------------
+
+export var CrystalMauler = new Fighter({
+  height: 105,
+  width: 75,
+  position: {
+    x: 0,
+    y: 0,
+  },
+  velocity: {
+    x: 0,
+    y: 0,
+  },
+  offset: {
+    x: 0,
+    y: 0,
+  },
+  moveSpeed: 4,
+  attackMoveSpeed: 0.3,
+  canbeReversed: true,
+  direction: 1,
+  imageSrc: "./img/CrystalMauler/idle.png",
+  framesMax: 8,
+  scale: 0.9,
+  offset: {
+    x: 70 + 241 + 43,
+    y: 35 + 152 + 50,
+  },
+  sprites: {
+    idle: {
+      imageSrc: "./img/CrystalMauler/idle.png",
+      framesMax: 8,
+    },
+    run: {
+      imageSrc: "./img/CrystalMauler/run.png",
+      framesMax: 8,
+    },
+    jump: {
+      imageSrc: "./img/CrystalMauler/jump.png",
+      framesMax: 3,
+    },
+    fall: {
+      imageSrc: "./img/CrystalMauler/fall.png",
+      framesMax: 3,
+    },
+    attack1: {
+      imageSrc: "./img/CrystalMauler/attack1.png",
+      framesMax: 7,
+    },
+    attack2: {
+      imageSrc: "./img/CrystalMauler/attack2.png",
+      framesMax: 14,
+    },
+    attack3: {
+      imageSrc: "./img/CrystalMauler/attack3.png",
+      framesMax: 31,
+    },
+    attack4: {
+      imageSrc: "./img/CrystalMauler/attack4.png",
+      framesMax: 15,
+    },
+    attack5: {
+      imageSrc: "./img/CrystalMauler/attack5.png",
+      framesMax: 8,
+    },
+    takehit: {
+      imageSrc: "./img/CrystalMauler/takehit.png",
+      framesMax: 6,
+    },
+    death: {
+      imageSrc: "./img/CrystalMauler/death.png",
+      framesMax: 15,
+    },
+  },
+  attacks: {
+    attack1: {
+      id: "attack1",
+      offset: { x: 70, y: -20 },
+      width: 70,
+      height: 80,
+      hitFrame: [3],
+      damage: 5,
+      knockback: 2.5
+    },
+    attack2: {
+      id: "attack2",
+      offset: { x: 70, y: -20 },
+      width: 70,
+      height: 80,
+      hitFrame: [3,10],
+      damage: 5,
+      knockback: 20
+    },
+    attack3: {
+      id: "attack3",
+      offset: { x: 100, y: -40 },
+      width: 250,
+      height: 125,
+      hitFrame: [3,10,17,21,25],
+      damage: 5,
+      knockback: 10
+    },
+    attack4: {
+      id: "attack4",
+      offset: { x: 100, y: -100 },
+      width: 300,
+      height: 200,
+      hitFrame: [8],
+      damage: 20,
+      knockback: 30
+    },
+    attack5: {
+      id: "attack5",
+      offset: { x: 100, y: -35 },
+      width: 50,
+      height: 145,
+      hitFrame: [3],
       damage: 5,
       knockback: 3
     },
