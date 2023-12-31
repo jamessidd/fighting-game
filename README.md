@@ -22,12 +22,15 @@ Foins' Fighters is a mutiplayer PvP combat project. The game features two charac
   - Move Right: `D` key or right arrow key
   - Jump: `W` key
   - Attack: `S` key
+  - Special Attack: `F` key
 
 - **Enemy Controls:**
   - Move Left: Left arrow key
   - Move Right: Right arrow key
   - Jump: Up arrow key
   - Attack: Down arrow key
+  - Special Attack: `/` key
+
 
 ## Gameplay
 
@@ -38,7 +41,7 @@ Foins' Fighters offers an engaging gameplay experience with responsive controls 
   - Running Animation
   - Jumping Animation
   - Falling Animation
-  - Attack Animation
+  - Attack Animation (5x)
   - Taking Hit Animation
   - Death Animation
 
@@ -47,7 +50,7 @@ Foins' Fighters offers an engaging gameplay experience with responsive controls 
   - Running Animation
   - Jumping Animation
   - Falling Animation
-  - Attack Animation
+  - Attack Animation (5x)
   - Taking Hit Animation
   - Death Animation
 
