@@ -80,9 +80,10 @@ Players and enemies have health bars displayed at the top of the screen. The gam
 
 ## TODO
 
-- Game loop
+- Proper game loop (refresh to restart)
 - Character Select Screen (current version has 6 characters but only 2 are playable)
 - Title Screen
+- Options Screen
 - Fighter stamina
 - Rolls + Block implementation
 
