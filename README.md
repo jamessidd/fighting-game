@@ -13,7 +13,7 @@
 
 ## Introduction
 
-Foins' Fighters is a mutiplayer PvP combat experience. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
+Foins' Fighters is a mutiplayer PvP combat project. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack with 5 unique attacks. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
 
 ## Controls
 
@@ -74,6 +74,14 @@ Precise collision detection is implemented, especially in the attack zone. The g
 ## Health and Victory
 
 Players and enemies have health bars displayed at the top of the screen. The game ends when either the player or the enemy's health drops to zero. A winner is declared based on the remaining health.
+
+## TODO
+
+- Game loop
+- Character Select Screen (current version has 6 characters but only 2 are playable)
+- Title Screen
+- Fighter stamina
+- Rolls + Block implementation
 
 ---
 ## Installation
