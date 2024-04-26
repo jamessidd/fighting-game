@@ -1,4 +1,4 @@
-# Foins' Fighters
+# Elemental Royale
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -13,7 +13,7 @@
 
 ## Introduction
 
-Foins' Fighters is a mutiplayer PvP combat project. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack with 5 unique attacks. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
+Elemental Royale is a mutiplayer PvP combat project. The game features two characters Player 1 and Player 2, controlled by WASD and the arrow keys respectively. The characters can move horizontally, jump and attack with 5 unique attacks. The goal of the game is to reduce the opponent's health to zero or to have more health than the opponent when the timer runs out.
 
 ## Controls
 
@@ -34,7 +34,7 @@ Foins' Fighters is a mutiplayer PvP combat project. The game features two charac
 
 ## Gameplay
 
-Foins' Fighters offers an engaging gameplay experience with responsive controls and captivating animations. Here's a brief overview:
+Elemental Royale offers an engaging gameplay experience with responsive controls and captivating animations. Here's a brief overview:
 
 - **Player Character (Fire Knight):**
   - Idle Animation
