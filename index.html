@@ -116,36 +116,59 @@
         padding: 20px;
       "
     >
-      <!-- player health -->
-      <div
-        style="
-          position: relative;
-          width: 100%;
-          display: flex;
-          justify-content: flex-end;
-          border-top: 4px solid white;
-          border-left: 4px solid white;
-          border-bottom: 4px solid white;
-        "
-      >
+      <!-- player health + stamina -->
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 4px;">
         <div
           style="
-            background-color: rgba(255, 255, 255, 0.1);
-            height: 30px;
+            position: relative;
             width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            border-top: 4px solid white;
+            border-left: 4px solid white;
+            border-bottom: 4px solid white;
           "
-        ></div>
+        >
+          <div
+            style="
+              background-color: rgba(255, 255, 255, 0.1);
+              height: 30px;
+              width: 100%;
+            "
+          ></div>
+          <div
+            id="playerHealth"
+            style="
+              position: absolute;
+              background: #84cc16;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              width: 100%;
+            "
+          ></div>
+        </div>
+        <!-- player stamina -->
         <div
-          id="playerHealth"
           style="
-            position: absolute;
-            background: #84cc16;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
+            position: relative;
+            height: 12px;
+            border: 2px solid white;
+            background: rgba(0, 0, 0, 0.35);
           "
-        ></div>
+        >
+          <div
+            id="playerStamina"
+            style="
+              position: absolute;
+              background: #f59e0b;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              width: 100%;
+            "
+          ></div>
+        </div>
       </div>
 
       <!-- timer -->
@@ -165,30 +188,53 @@
       >
       </div>
 
-      <!-- enemy health -->
-      <div
-        style="
-          position: relative;
-          width: 100%;
-          border-top: 4px solid white;
-          border-right: 4px solid white;
-          border-bottom: 4px solid white;
-        "
-      >
+      <!-- enemy health + stamina -->
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 4px;">
         <div
-          style="background-color: rgba(255, 255, 255, 0.1); height: 30px"
-        ></div>
-        <div
-          id="enemyHealth"
           style="
-            position: absolute;
-            background: #84cc16;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
+            position: relative;
+            width: 100%;
+            border-top: 4px solid white;
+            border-right: 4px solid white;
+            border-bottom: 4px solid white;
           "
-        ></div>
+        >
+          <div
+            style="background-color: rgba(255, 255, 255, 0.1); height: 30px"
+          ></div>
+          <div
+            id="enemyHealth"
+            style="
+              position: absolute;
+              background: #84cc16;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              left: 0;
+            "
+          ></div>
+        </div>
+        <!-- enemy stamina -->
+        <div
+          style="
+            position: relative;
+            height: 12px;
+            border: 2px solid white;
+            background: rgba(0, 0, 0, 0.35);
+          "
+        >
+          <div
+            id="enemyStamina"
+            style="
+              position: absolute;
+              background: #f59e0b;
+              top: 0;
+              left: 0;
+              bottom: 0;
+              width: 100%;
+            "
+          ></div>
+        </div>
       </div>
 
       <div></div>

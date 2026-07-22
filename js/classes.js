@@ -206,6 +206,10 @@ export class Fighter extends Sprite {
     this.colour = colour;
     this.direction = direction;
     this.health = 100;
+    this.stamina = 100;
+    this.maxStamina = 100;
+    // ~5s to refill from empty at 60fps (100 / (5 * 60)).
+    this.staminaRegen = 100 / (5 * 60);
     this.framesCurrent = 0;
     this.framesElapsed = 0;
     this.framesHold = 4;
@@ -267,6 +271,11 @@ export class Fighter extends Sprite {
     if (!this.dead) this.animateFrames();
 
     if (this.dead) this.canMove = false;
+
+    // Regenerate stamina over time.
+    if (this.stamina < this.maxStamina) {
+      this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegen);
+    }
 
     for (const attackB in this.attacks) {
       if (this.direction === 0) {

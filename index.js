@@ -37,6 +37,8 @@ const GameState = {
 let gameState = GameState.SELECT;
 
 const displayText = document.querySelector("#displayText");
+const playerStaminaEl = document.querySelector("#playerStamina");
+const enemyStaminaEl = document.querySelector("#enemyStamina");
 
 // Fighters and their spawn snapshot are created when a match starts
 // (see startMatch), after both players have picked in the select screen.
@@ -286,6 +288,10 @@ function animate() {
       });
     }
   }
+
+  // Update stamina bars.
+  playerStaminaEl.style.width = player.stamina + "%";
+  enemyStaminaEl.style.width = enemy.stamina + "%";
 
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {

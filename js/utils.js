@@ -41,10 +41,16 @@ function fighterCollision(rect1, rect2) {
   );
 }
 
+// Stamina cost of a special/super (attack4).
+const SPECIAL_STAMINA_COST = 50;
+
 function getAttack(fighter, fighter2, specialAttack = false) {
   if (specialAttack) {
     if (!fighter.grounded) return;
+    if (!fighter.canAttack) return; // already mid-attack
+    if (fighter.stamina < SPECIAL_STAMINA_COST) return; // not enough stamina
 
+    fighter.stamina -= SPECIAL_STAMINA_COST;
     fighter.attack(
       fighter.attacks.attack4,
       0,
