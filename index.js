@@ -225,6 +225,10 @@ function animate() {
     enemy.currentAttack === undefined &&
     (enemy.direction === 1 ? keys.ArrowLeft.pressed : keys.ArrowRight.pressed);
 
+  // Roll movement: carry the dodge velocity while a roll is active.
+  if (player.rolling) player.velocity.x = player.rollDir * ROLL_SPEED;
+  if (enemy.rolling) enemy.velocity.x = enemy.rollDir * ROLL_SPEED;
+
   //windAssassinSpecial
   if(player.currentAttack !== undefined){
     if(player.currentAttack.id === 'attack4' && player.characterId === 'WindAssassin' && (player.framesCurrent === 1))
@@ -256,7 +260,8 @@ function animate() {
         rectangle1: player,
         rectangle2: enemy,
       }) &&
-      player.isAttacking
+      player.isAttacking &&
+      !enemy.invincible
     ) {
       player.isAttacking = false;
       player.stopAttack = player.currentAttack.id;
@@ -281,7 +286,8 @@ function animate() {
         rectangle1: enemy,
         rectangle2: player,
       }) &&
-      enemy.isAttacking
+      enemy.isAttacking &&
+      !player.invincible
     ) {
       enemy.isAttacking = false;
       enemy.stopAttack = enemy.currentAttack.id;
@@ -378,6 +384,10 @@ let fKeyPressed = false;
 let downKeyPressed = false;
 let slashKeyPressed = false;
 
+// Double-tap tracking for rolls.
+const DOUBLE_TAP_MS = 300;
+let lastTap = { a: 0, d: 0, ArrowLeft: 0, ArrowRight: 0 };
+
 
 window.addEventListener("keydown", (event) => {
   // Global controls (work regardless of fighter state).
@@ -396,6 +406,22 @@ window.addEventListener("keydown", (event) => {
   }
   // Ignore gameplay input while selecting, paused, or after the match ends.
   if (gameState !== GameState.PLAYING) return;
+
+  // Double-tap a movement direction to roll (ignore held-key auto-repeat).
+  if (!event.repeat) {
+    const rollMap = {
+      a: [player, -1],
+      d: [player, 1],
+      ArrowLeft: [enemy, -1],
+      ArrowRight: [enemy, 1],
+    };
+    const entry = rollMap[event.key];
+    if (entry) {
+      const now = performance.now();
+      if (now - lastTap[event.key] < DOUBLE_TAP_MS) rollFighter(entry[0], entry[1]);
+      lastTap[event.key] = now;
+    }
+  }
 
   if (player.canMove) {
     switch (event.key) {
@@ -519,6 +545,32 @@ window.addEventListener("keyup", (event) => {
 
 
 
+
+// --- Roll (double-tap a direction) ------------------------------------------
+
+const ROLL_STAMINA_COST = 25;
+const ROLL_SPEED = 9;
+
+function rollFighter(fighter, dir) {
+  if (!fighter.grounded || !fighter.canMove || fighter.rolling) return;
+  if (fighter.currentAttack !== undefined) return;
+  if (fighter.stamina < ROLL_STAMINA_COST) return;
+
+  fighter.stamina -= ROLL_STAMINA_COST;
+  fighter.rolling = true;
+  fighter.invincible = true; // i-frames during the dodge
+  fighter.canMove = false;
+  fighter.rollDir = dir;
+  fighter.framesCurrent = 0;
+  fighter.switchSprite("roll", true);
+
+  const rollMs = fighter.sprites.roll.framesMax * 4 * (1000 / 60);
+  setTimeout(() => {
+    fighter.rolling = false;
+    fighter.invincible = false;
+    fighter.canMove = true;
+  }, rollMs);
+}
 
 //extra special move logic
 

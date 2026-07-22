@@ -508,12 +508,6 @@ export class Fighter extends Sprite {
       this.framesCurrent < this.sprites.attack5.framesMax - 1
     )
       return;
-    //don't interrupt a roll until it finishes
-    if (
-      this.image === this.sprites.roll.image &&
-      this.framesCurrent < this.sprites.roll.framesMax - 1
-    )
-      return;
 
     if (this.image !== this.sprites[sprite].image) {
       this.image = this.sprites[sprite].image;
