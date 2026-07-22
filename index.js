@@ -32,17 +32,11 @@ const player = characters.FireKnight;
 
 player.position.x = 300
 
-console.log(player);
-
-
 //enemy
 const enemy = characters.WaterPrincess;
 
 enemy.position.x = canvas.width-300
 enemy.direction = 0
-
-
-console.log(enemy);
 
 const keys = {
   a: {
@@ -59,7 +53,7 @@ const keys = {
   },
 };
 
-decreaseTimer();
+decreaseTimer(player, enemy);
 
 //ANIMATE AT 60fps
 let msPrev = window.performance.now();
@@ -240,7 +234,6 @@ function animate() {
       gsap.to(`#enemyHealth`, {
         width: enemy.health + "%",
       });
-      console.log("player hits enemy");
     }
 
   }
@@ -268,11 +261,9 @@ function animate() {
       gsap.to(`#playerHealth`, {
         width: player.health + "%",
       });
-      console.log("enemy hits player");
     }
   }
-  
-  console.log(player.currentAttack)
+
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {
     determineWinner({ player, enemy, timerId });
@@ -424,8 +415,6 @@ function WASpecialMove(fighter, startPos, fighter2Pos){
   }, 500);
 
   setTimeout(() => {
-    console.log('fin')
-
     fighter.position.x = startPos
     fighter.canMove = true
   }, 2300);
@@ -448,8 +437,6 @@ function GMSpecialMove(fighter, fighter2){
         }, 2200);
 
       }, 300);
-      
-      console.log('colide')
     }
   }
   if(fighter.position.x > fighter2.position.x && fighter.direction === 0){
