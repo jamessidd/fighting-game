@@ -216,6 +216,9 @@ export class Fighter extends Sprite {
     this.sprites = sprites;
     this.attacks = attacks;
     this.dead = false;
+    this.isBlocking = false;
+    this.rolling = false;
+    this.invincible = false;
 
     for (const sprite in sprites) {
       sprites[sprite].image = new Image();
@@ -251,6 +254,9 @@ export class Fighter extends Sprite {
     this.currentAttack = undefined;
     this.stopAttack = {};
     this.numOfJumps = 1;
+    this.isBlocking = false;
+    this.rolling = false;
+    this.invincible = false;
     this.velocity = { x: 0, y: 0 };
     this.position = { x, y };
     this.direction = direction;
@@ -441,6 +447,21 @@ export class Fighter extends Sprite {
     }, 600);
   }
 
+  // Take a blocked hit: chip damage, stamina drain, brief block-stun pose.
+  blockHit(atk) {
+    if (this.dead) return;
+    this.health -= atk.damage * 0.25;
+    if (this.health < 0) this.health = 0;
+    this.stamina = Math.max(0, this.stamina - 20);
+    this.canMove = false;
+    this.framesCurrent = 0;
+    this.switchSprite("defend", true);
+    this.isAttacking = false;
+    setTimeout(() => {
+      this.canMove = true;
+    }, 250);
+  }
+
   switchSprite(sprite, priority = false, framesCurrent = 0) {
     if (priority) {
       if (this.image !== this.sprites[sprite].image) {
@@ -485,6 +506,12 @@ export class Fighter extends Sprite {
     if (
       this.image === this.sprites.attack5.image &&
       this.framesCurrent < this.sprites.attack5.framesMax - 1
+    )
+      return;
+    //don't interrupt a roll until it finishes
+    if (
+      this.image === this.sprites.roll.image &&
+      this.framesCurrent < this.sprites.roll.framesMax - 1
     )
       return;
 

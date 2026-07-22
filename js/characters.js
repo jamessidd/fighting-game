@@ -76,6 +76,14 @@ export const createFireKnight = () => new Fighter({
       imageSrc: "./img/FireKnight/death.png",
       framesMax: 13,
     },
+    defend: {
+      imageSrc: "./img/FireKnight/defend.png",
+      framesMax: 10,
+    },
+    roll: {
+      imageSrc: "./img/FireKnight/roll.png",
+      framesMax: 8,
+    },
   },
   attacks: {
     attack1: {
@@ -200,6 +208,14 @@ export const createWaterPrincess = () => new Fighter({
       death: {
         imageSrc: "./img/WaterPrincess/death.png",
         framesMax: 16,
+      },
+      defend: {
+        imageSrc: "./img/WaterPrincess/defend.png",
+        framesMax: 12,
+      },
+      roll: {
+        imageSrc: "./img/WaterPrincess/roll.png",
+        framesMax: 6,
       },
     },
     attacks: {
@@ -330,6 +346,14 @@ export const createMetalBladeMaster = () => new Fighter({
       imageSrc: "./img/MetalBladeMaster/death.png",
       framesMax: 12,
     },
+    defend: {
+      imageSrc: "./img/MetalBladeMaster/defend.png",
+      framesMax: 12,
+    },
+    roll: {
+      imageSrc: "./img/MetalBladeMaster/roll.png",
+      framesMax: 7,
+    },
   },
   attacks: {
     attack1: {
@@ -452,6 +476,14 @@ export const createWindAssassin = () => new Fighter({
     death: {
       imageSrc: "./img/WindAssassin/death.png",
       framesMax: 19,
+    },
+    defend: {
+      imageSrc: "./img/WindAssassin/defend.png",
+      framesMax: 8,
+    },
+    roll: {
+      imageSrc: "./img/WindAssassin/roll.png",
+      framesMax: 6,
     },
   },
   attacks: {
@@ -577,6 +609,14 @@ export const createGroundMonk = () => new Fighter({
       imageSrc: "./img/GroundMonk/death.png",
       framesMax: 18,
     },
+    defend: {
+      imageSrc: "./img/GroundMonk/defend.png",
+      framesMax: 13,
+    },
+    roll: {
+      imageSrc: "./img/GroundMonk/roll.png",
+      framesMax: 6,
+    },
   },
   attacks: {
     attack1: {
@@ -699,6 +739,14 @@ export const createCrystalMauler = () => new Fighter({
     death: {
       imageSrc: "./img/CrystalMauler/death.png",
       framesMax: 15,
+    },
+    defend: {
+      imageSrc: "./img/CrystalMauler/defend.png",
+      framesMax: 9,
+    },
+    roll: {
+      imageSrc: "./img/CrystalMauler/roll.png",
+      framesMax: 8,
     },
   },
   attacks: {

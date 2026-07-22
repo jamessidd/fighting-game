@@ -213,6 +213,18 @@ function animate() {
     enemy.direction = enemy.position.x <= player.position.x ? 1 : 0;
   }
 
+  // Guard state: holding the key away from the opponent (grounded + neutral).
+  player.isBlocking =
+    player.grounded &&
+    player.canMove &&
+    player.currentAttack === undefined &&
+    (player.direction === 1 ? keys.a.pressed : keys.d.pressed);
+  enemy.isBlocking =
+    enemy.grounded &&
+    enemy.canMove &&
+    enemy.currentAttack === undefined &&
+    (enemy.direction === 1 ? keys.ArrowLeft.pressed : keys.ArrowRight.pressed);
+
   //windAssassinSpecial
   if(player.currentAttack !== undefined){
     if(player.currentAttack.id === 'attack4' && player.characterId === 'WindAssassin' && (player.framesCurrent === 1))
@@ -249,13 +261,13 @@ function animate() {
       player.isAttacking = false;
       player.stopAttack = player.currentAttack.id;
 
-      enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
-  
-      enemy.takehit(player.currentAttack);
-  
-  
-      knockback(enemy, player, deltaTime);
-      // document.querySelector("#enemyHealth").style.width = enemy.health + "%";
+      if (enemy.isBlocking && enemy.stamina > 0) {
+        enemy.blockHit(player.currentAttack);
+      } else {
+        enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
+        enemy.takehit(player.currentAttack);
+        knockback(enemy, player, deltaTime);
+      }
       gsap.to(`#enemyHealth`, {
         width: enemy.health + "%",
       });
@@ -273,16 +285,15 @@ function animate() {
     ) {
       enemy.isAttacking = false;
       enemy.stopAttack = enemy.currentAttack.id;
-  
-      player.direction = enemy.position.x >= player.position.x ? 1 : 0;
-  
-  
-      player.takehit(enemy.currentAttack);
-  
-      //when player is hit make it face the player
-  
-      knockback(player, enemy, deltaTime);
-  
+
+      if (player.isBlocking && player.stamina > 0) {
+        player.blockHit(enemy.currentAttack);
+      } else {
+        player.direction = enemy.position.x >= player.position.x ? 1 : 0;
+        player.takehit(enemy.currentAttack);
+        knockback(player, enemy, deltaTime);
+      }
+
       gsap.to(`#playerHealth`, {
         width: player.health + "%",
       });
