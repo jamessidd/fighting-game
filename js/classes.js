@@ -238,6 +238,26 @@ export class Fighter extends Sprite {
     this.numOfJumps = 1;
   }
 
+  reset({ x, y, direction }) {
+    this.health = 100;
+    this.dead = false;
+    this.canMove = true;
+    this.canAttack = true;
+    this.isAttacking = false;
+    this.currentAttack = undefined;
+    this.stopAttack = {};
+    this.numOfJumps = 1;
+    this.velocity = { x: 0, y: 0 };
+    this.position = { x, y };
+    this.direction = direction;
+    this.lastkey = undefined;
+    this.framesCurrent = 0;
+    this.framesElapsed = 0;
+    this.framesHold = 4;
+    this.image = this.sprites.idle.image;
+    this.framesMax = this.sprites.idle.framesMax;
+  }
+
   
   
 

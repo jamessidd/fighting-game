@@ -128,7 +128,7 @@ function getAttack(fighter, fighter2, specialAttack = false) {
   return;
 }
 
-function determineWinner({ player, enemy, timerId }) {
+function determineWinner({ player, enemy, timerId, onEnd }) {
   clearTimeout(timerId);
   document.querySelector("#displayText").style.display = "flex";
 
@@ -144,18 +144,38 @@ function determineWinner({ player, enemy, timerId }) {
     player.switchSprite("death");
     document.querySelector("#displayText").innerHTML = "Player 2 Wins!";
   }
+
+  if (typeof onEnd === "function") onEnd();
 }
 
 let timer = 101;
 let timerId;
-function decreaseTimer(player, enemy) {
+function decreaseTimer(player, enemy, onEnd) {
   if (timer > 0) {
-    timerId = setTimeout(() => decreaseTimer(player, enemy), 1000);
+    timerId = setTimeout(() => decreaseTimer(player, enemy, onEnd), 1000);
     timer--;
     document.querySelector("#timer").innerHTML = timer;
   }
   if (timer === 0) {
-    determineWinner({ player, enemy, timerId });
+    determineWinner({ player, enemy, timerId, onEnd });
+  }
+}
+
+// Reset the round clock back to its starting value (used on rematch).
+function resetTimer() {
+  clearTimeout(timerId);
+  timer = 101;
+}
+
+// Pause the countdown without losing the current value.
+function pauseTimer() {
+  clearTimeout(timerId);
+}
+
+// Resume the countdown from where it left off (no lost second).
+function resumeTimer(player, enemy, onEnd) {
+  if (timer > 0) {
+    timerId = setTimeout(() => decreaseTimer(player, enemy, onEnd), 1000);
   }
 }
 

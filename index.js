@@ -31,12 +31,25 @@ const shop = new Sprite({
 const player = characters.FireKnight;
 
 player.position.x = 300
+player.direction = 1
 
 //enemy
 const enemy = characters.WaterPrincess;
 
 enemy.position.x = canvas.width-300
 enemy.direction = 0
+
+// Spawn snapshot used to reset both fighters on a rematch.
+const spawns = {
+  player: { x: 300, y: player.position.y, direction: 1 },
+  enemy: { x: canvas.width - 300, y: enemy.position.y, direction: 0 },
+};
+
+// Game state machine.
+const GameState = { PLAYING: "playing", PAUSED: "paused", ENDED: "ended" };
+let gameState = GameState.PLAYING;
+
+const displayText = document.querySelector("#displayText");
 
 const keys = {
   a: {
@@ -53,7 +66,7 @@ const keys = {
   },
 };
 
-decreaseTimer(player, enemy);
+decreaseTimer(player, enemy, endMatch);
 
 //ANIMATE AT 60fps
 let msPrev = window.performance.now();
@@ -78,13 +91,29 @@ function animate() {
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
 
+  // PAUSED: render a frozen frame (no physics, no animation advance).
+  if (gameState === GameState.PAUSED) {
+    background.draw();
+    shop.draw();
+    c.fillStyle = `rgba(255,255,255,0.15)`;
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    player.draw();
+    enemy.draw();
+    return;
+  }
+
   background.update();
   shop.update();
   c.fillStyle = `rgba(255,255,255,0.15)`;
   c.fillRect(0, 0, canvas.width, canvas.height);
-  
+
   player.update();
   enemy.update();
+
+  // ENDED: keep animating so the death animation plays out, but stop
+  // input-driven movement, special moves, and hit detection.
+  if (gameState !== GameState.PLAYING) return;
+
   player.velocity.x = 0;
   enemy.velocity.x = 0;
 
@@ -221,9 +250,9 @@ function animate() {
       }) &&
       player.isAttacking
     ) {
-      // player.isAttacking = false;
-      // player.stopAttack = player.currentAttack.id;
-  
+      player.isAttacking = false;
+      player.stopAttack = player.currentAttack.id;
+
       enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
   
       enemy.takehit(player.currentAttack);
@@ -266,11 +295,55 @@ function animate() {
 
   //end game based on health
   if (enemy.health <= 0 || player.health <= 0) {
-    determineWinner({ player, enemy, timerId });
+    determineWinner({ player, enemy, timerId, onEnd: endMatch });
   }
 }
 
 animate();
+
+// --- Game state transitions -------------------------------------------------
+
+// Called once when a match ends (KO or time out).
+function endMatch() {
+  gameState = GameState.ENDED;
+  player.velocity.x = 0;
+  enemy.velocity.x = 0;
+  displayText.innerHTML +=
+    `<div style="font-size:0.5em;margin-top:16px;">Press R to rematch</div>`;
+}
+
+// Reset everything for a fresh round without reloading the page.
+function resetMatch() {
+  player.reset(spawns.player);
+  enemy.reset(spawns.enemy);
+
+  gsap.to("#playerHealth", { width: "100%" });
+  gsap.to("#enemyHealth", { width: "100%" });
+
+  displayText.style.display = "none";
+  displayText.innerHTML = "";
+
+  resetTimer();
+  decreaseTimer(player, enemy, endMatch);
+
+  gameState = GameState.PLAYING;
+}
+
+// Toggle pause/resume (only meaningful during an active match).
+function togglePause() {
+  if (gameState === GameState.PLAYING) {
+    gameState = GameState.PAUSED;
+    pauseTimer();
+    displayText.style.display = "flex";
+    displayText.innerHTML =
+      `Paused<div style="font-size:0.5em;margin-top:16px;">Press Esc to resume</div>`;
+  } else if (gameState === GameState.PAUSED) {
+    gameState = GameState.PLAYING;
+    displayText.style.display = "none";
+    displayText.innerHTML = "";
+    resumeTimer(player, enemy, endMatch);
+  }
+}
 
 let sKeyPressed = false;
 let fKeyPressed = false;
@@ -280,6 +353,18 @@ let slashKeyPressed = false;
 
 
 window.addEventListener("keydown", (event) => {
+  // Global controls (work regardless of fighter state).
+  if (event.key === "r" || event.key === "R") {
+    if (gameState === GameState.ENDED) resetMatch();
+    return;
+  }
+  if (event.key === "Escape" || event.key === "p" || event.key === "P") {
+    togglePause();
+    return;
+  }
+  // Ignore gameplay input while paused or after the match has ended.
+  if (gameState !== GameState.PLAYING) return;
+
   if (player.canMove) {
     switch (event.key) {
       case "d":
