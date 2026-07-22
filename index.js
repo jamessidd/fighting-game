@@ -117,21 +117,6 @@ function animate() {
   player.velocity.x = 0;
   enemy.velocity.x = 0;
 
-  // if (!player.isAttacking) {
-  //   if (player.position.x > enemy.position.x) {
-  //     player.direction = 0;
-  //   } else {
-  //     player.direction = 1;
-  //   }
-  // }
-  // if (!enemy.isAttacking) {
-  //   if (enemy.position.x > player.position.x && !enemy.isAttacking) {
-  //     enemy.direction = 0;
-  //   } else {
-  //     enemy.direction = 1;
-  //   }
-  // }
-
   //player movement
 
   if (player.canMove && keys.a.pressed && player.lastkey === "a") {
@@ -216,6 +201,15 @@ function animate() {
     enemy.switchSprite("fall");
   }
 
+  // Auto-turnaround: face the opponent while neutral. Skipped mid-attack,
+  // hit-stun, death, or specials (canMove is false / an attack is active), so
+  // a fighter never flips in the middle of a move.
+  if (player.canMove && player.currentAttack === undefined) {
+    player.direction = player.position.x <= enemy.position.x ? 1 : 0;
+  }
+  if (enemy.canMove && enemy.currentAttack === undefined) {
+    enemy.direction = enemy.position.x <= player.position.x ? 1 : 0;
+  }
 
   //windAssassinSpecial
   if(player.currentAttack !== undefined){
