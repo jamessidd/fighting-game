@@ -10,6 +10,96 @@
       box-sizing: border-box;
       font-family: "Press Start 2P", cursive;
     }
+
+    /* ---- Character select screen ---- */
+    #characterSelect {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none; /* toggled to flex by JS */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: rgba(10, 8, 20, 0.82);
+      color: white;
+      padding: 24px;
+    }
+    #csPrompt {
+      font-size: 18px;
+      text-shadow: 2px 2px 0 #000;
+      letter-spacing: 1px;
+    }
+    #csGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .cs-card {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.08s, border-color 0.08s;
+    }
+    .cs-card:hover {
+      transform: translateY(-3px);
+      border-color: #fff;
+    }
+    .cs-card canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .cs-name {
+      position: relative;
+      z-index: 2;
+      font-size: 9px;
+      text-align: center;
+      padding: 6px 4px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    .cs-badge {
+      position: absolute;
+      top: 6px;
+      z-index: 3;
+      font-size: 9px;
+      padding: 3px 5px;
+      border-radius: 4px;
+      color: #000;
+      font-weight: bold;
+    }
+    .cs-badge.p1 { left: 6px; background: #38bdf8; }
+    .cs-badge.p2 { right: 6px; background: #f87171; }
+    .cs-card.sel-p1 { border-color: #38bdf8; }
+    .cs-card.sel-p2 { border-color: #f87171; }
+    .cs-card.sel-both {
+      border-color: #a78bfa;
+    }
+    #csButtons { display: flex; gap: 16px; align-items: center; }
+    .cs-btn {
+      font-family: inherit;
+      font-size: 12px;
+      color: #000;
+      background: #facc15;
+      border: 3px solid #fff;
+      border-radius: 6px;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+    .cs-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .cs-btn.secondary { background: #cbd5e1; }
+    #csHint { font-size: 9px; opacity: 0.8; }
   </style>
 </head>
 
@@ -73,7 +163,6 @@
           border: 4px solid white;
         "
       >
-        10
       </div>
 
       <!-- enemy health -->
@@ -109,14 +198,26 @@
       style="
         position: absolute;
         color: white;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        text-align: center;
         top: 0;
         bottom: 0;
         left: 0;
         right: 0;
+        z-index: 5;
       "
     ></div>
+    <div id="characterSelect">
+      <div id="csPrompt"></div>
+      <div id="csGrid"></div>
+      <div id="csButtons">
+        <button id="csFight" class="cs-btn" disabled>FIGHT!</button>
+        <button id="csReset" class="cs-btn secondary">Reset picks</button>
+      </div>
+      <div id="csHint">P1: A/D move, W jump, S attack, F special &nbsp;|&nbsp; P2: Arrows move, Up jump, Down attack, / special</div>
+    </div>
     <canvas></canvas>
   </div>
 

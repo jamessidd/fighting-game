@@ -1,6 +1,5 @@
-import * as characters from "../js/characters.js";
+import { roster } from "../js/characters.js";
 import Sprite from "../js/classes.js";
-import Fighter from "../js/classes.js";
 
 
 const canvas = document.querySelector("canvas");
@@ -28,28 +27,22 @@ const shop = new Sprite({
   framesMax: 6,
 });
 
-const player = characters.FireKnight;
-
-player.position.x = 300
-player.direction = 1
-
-//enemy
-const enemy = characters.WaterPrincess;
-
-enemy.position.x = canvas.width-300
-enemy.direction = 0
-
-// Spawn snapshot used to reset both fighters on a rematch.
-const spawns = {
-  player: { x: 300, y: player.position.y, direction: 1 },
-  enemy: { x: canvas.width - 300, y: enemy.position.y, direction: 0 },
-};
-
 // Game state machine.
-const GameState = { PLAYING: "playing", PAUSED: "paused", ENDED: "ended" };
-let gameState = GameState.PLAYING;
+const GameState = {
+  SELECT: "select",
+  PLAYING: "playing",
+  PAUSED: "paused",
+  ENDED: "ended",
+};
+let gameState = GameState.SELECT;
 
 const displayText = document.querySelector("#displayText");
+
+// Fighters and their spawn snapshot are created when a match starts
+// (see startMatch), after both players have picked in the select screen.
+let player;
+let enemy;
+let lastMatch = { p1: "FireKnight", p2: "WaterPrincess" };
 
 const keys = {
   a: {
@@ -65,8 +58,6 @@ const keys = {
     pressed: false,
   },
 };
-
-decreaseTimer(player, enemy, endMatch);
 
 //ANIMATE AT 60fps
 let msPrev = window.performance.now();
@@ -90,6 +81,15 @@ function animate() {
 
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
+
+  // SELECT (or before any match): animate the background behind the overlay.
+  if (gameState === GameState.SELECT || !player || !enemy) {
+    background.update();
+    shop.update();
+    c.fillStyle = `rgba(255,255,255,0.15)`;
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
 
   // PAUSED: render a frozen frame (no physics, no animation advance).
   if (gameState === GameState.PAUSED) {
@@ -219,24 +219,24 @@ function animate() {
 
   //windAssassinSpecial
   if(player.currentAttack !== undefined){
-    if(player.currentAttack.id === 'attack4' && player.sprites.attack4.imageSrc === './img/WindAssassin/attack4.png' && (player.framesCurrent === 1))
+    if(player.currentAttack.id === 'attack4' && player.characterId === 'WindAssassin' && (player.framesCurrent === 1))
       WASpecialMove(player, player.position.x ,enemy.position.x)
       
   }
   if(enemy.currentAttack !== undefined){
-    if(enemy.currentAttack.id === 'attack4' && enemy.sprites.attack4.imageSrc === './img/WindAssassin/attack4.png' && (enemy.framesCurrent === 1))
+    if(enemy.currentAttack.id === 'attack4' && enemy.characterId === 'WindAssassin' && (enemy.framesCurrent === 1))
       WASpecialMove(enemy, enemy.position.x ,player.position.x)
       
   }
 
   //groundMonkSpecial
   if(player.currentAttack !== undefined){
-    if(player.currentAttack.id === 'attack4' && player.sprites.attack4.imageSrc === './img/GroundMonk/attack4.png' && (player.framesCurrent === 1))
+    if(player.currentAttack.id === 'attack4' && player.characterId === 'GroundMonk' && (player.framesCurrent === 1))
       GMSpecialMove(player, enemy)
       
   }
   if(enemy.currentAttack !== undefined){
-    if(enemy.currentAttack.id === 'attack4' && enemy.sprites.attack4.imageSrc === './img/GroundMonk/attack4.png' && (enemy.framesCurrent === 1))
+    if(enemy.currentAttack.id === 'attack4' && enemy.characterId === 'GroundMonk' && (enemy.framesCurrent === 1))
       GMSpecialMove(enemy, player)
       
   }
@@ -309,19 +309,34 @@ function endMatch() {
   player.velocity.x = 0;
   enemy.velocity.x = 0;
   displayText.innerHTML +=
-    `<div style="font-size:0.5em;margin-top:16px;">Press R to rematch</div>`;
+    `<div style="font-size:11px;margin-top:18px;line-height:1.6;">Press R to rematch<br>C to change characters</div>`;
 }
 
-// Reset everything for a fresh round without reloading the page.
+// Rematch with the same two characters (fresh instances).
 function resetMatch() {
-  player.reset(spawns.player);
-  enemy.reset(spawns.enemy);
+  startMatch(lastMatch.p1, lastMatch.p2);
+}
 
-  gsap.to("#playerHealth", { width: "100%" });
-  gsap.to("#enemyHealth", { width: "100%" });
+// Create both fighters from the roster and begin a fresh match.
+function startMatch(p1Id, p2Id) {
+  lastMatch = { p1: p1Id, p2: p2Id };
+
+  player = roster[p1Id].create();
+  player.characterId = p1Id;
+  player.position.x = 300;
+  player.direction = 1;
+
+  enemy = roster[p2Id].create();
+  enemy.characterId = p2Id;
+  enemy.position.x = canvas.width - 300;
+  enemy.direction = 0;
+
+  gsap.set("#playerHealth", { width: "100%" });
+  gsap.set("#enemyHealth", { width: "100%" });
 
   displayText.style.display = "none";
   displayText.innerHTML = "";
+  characterSelectEl.style.display = "none";
 
   resetTimer();
   decreaseTimer(player, enemy, endMatch);
@@ -336,7 +351,8 @@ function togglePause() {
     pauseTimer();
     displayText.style.display = "flex";
     displayText.innerHTML =
-      `Paused<div style="font-size:0.5em;margin-top:16px;">Press Esc to resume</div>`;
+      `<div style="font-size:28px;text-shadow:3px 3px 0 #000;">Paused</div>` +
+      `<div style="font-size:11px;margin-top:16px;">Press Esc to resume</div>`;
   } else if (gameState === GameState.PAUSED) {
     gameState = GameState.PLAYING;
     displayText.style.display = "none";
@@ -358,11 +374,16 @@ window.addEventListener("keydown", (event) => {
     if (gameState === GameState.ENDED) resetMatch();
     return;
   }
-  if (event.key === "Escape" || event.key === "p" || event.key === "P") {
-    togglePause();
+  if (event.key === "c" || event.key === "C") {
+    if (gameState === GameState.ENDED) openCharacterSelect();
     return;
   }
-  // Ignore gameplay input while paused or after the match has ended.
+  if (event.key === "Escape" || event.key === "p" || event.key === "P") {
+    if (gameState === GameState.PLAYING || gameState === GameState.PAUSED)
+      togglePause();
+    return;
+  }
+  // Ignore gameplay input while selecting, paused, or after the match ends.
   if (gameState !== GameState.PLAYING) return;
 
   if (player.canMove) {
@@ -547,3 +568,155 @@ function GMSpecialMove(fighter, fighter2){
     return
   }, 2000);
 }
+
+// --- Character select screen -------------------------------------------------
+
+const characterSelectEl = document.querySelector("#characterSelect");
+const csPrompt = document.querySelector("#csPrompt");
+const csGrid = document.querySelector("#csGrid");
+const csFight = document.querySelector("#csFight");
+const csReset = document.querySelector("#csReset");
+
+// Current picks. p1 is chosen first, then p2.
+let pick = { p1: null, p2: null };
+
+// Draw a zoomed-in portrait of the sprite's upper body (idle frame 0) into the
+// card. The sprite's opaque bounding box is detected via pixel alpha so the
+// crop auto-adapts to each character (sprites have lots of transparent padding
+// and sit at different positions in their frames). topFrac controls how much of
+// the character's height (from the top) to show; it's tunable per character.
+function drawPortrait(canvasEl, portrait) {
+  const img = new Image();
+  img.onload = () => {
+    const frameW = Math.floor(img.width / portrait.framesMax);
+    const frameH = img.height;
+
+    // Render frame 0 to an offscreen canvas and scan for opaque pixels.
+    const off = document.createElement("canvas");
+    off.width = frameW;
+    off.height = frameH;
+    const octx = off.getContext("2d");
+    octx.drawImage(img, 0, 0, frameW, frameH, 0, 0, frameW, frameH);
+
+    const ctx = canvasEl.getContext("2d");
+    canvasEl.width = 150;
+    canvasEl.height = 150;
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, 150, 150);
+
+    let minX = frameW, minY = frameH, maxX = 0, maxY = 0, found = false;
+    try {
+      const data = octx.getImageData(0, 0, frameW, frameH).data;
+      for (let y = 0; y < frameH; y++) {
+        for (let x = 0; x < frameW; x++) {
+          if (data[(y * frameW + x) * 4 + 3] > 24) {
+            found = true;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+    } catch (e) {
+      found = false;
+    }
+
+    if (!found) {
+      ctx.drawImage(img, 0, 0, frameW, frameH, 0, 0, 150, 150);
+      return;
+    }
+
+    const bw = maxX - minX + 1;
+    const bh = maxY - minY + 1;
+    const topFrac = portrait.topFrac ?? 0.6; // portion of character height to show
+    // Square crop, focused on the top of the character (head + upper torso).
+    let side = Math.max(bh * topFrac, bw * 0.9);
+    side = Math.min(side, frameH, frameW);
+    let sx = minX + bw / 2 - side / 2;
+    let sy = minY - side * 0.06; // a little headroom above the sprite
+    sx = Math.max(0, Math.min(sx, frameW - side));
+    sy = Math.max(0, Math.min(sy, frameH - side));
+
+    ctx.drawImage(img, sx, sy, side, side, 0, 0, 150, 150);
+  };
+  img.src = portrait.src;
+}
+
+function refreshCardStyles() {
+  document.querySelectorAll(".cs-card").forEach((card) => {
+    const id = card.dataset.id;
+    card.classList.remove("sel-p1", "sel-p2", "sel-both");
+    card.querySelector(".cs-badge.p1").style.display =
+      pick.p1 === id ? "block" : "none";
+    card.querySelector(".cs-badge.p2").style.display =
+      pick.p2 === id ? "block" : "none";
+    if (pick.p1 === id && pick.p2 === id) card.classList.add("sel-both");
+    else if (pick.p1 === id) card.classList.add("sel-p1");
+    else if (pick.p2 === id) card.classList.add("sel-p2");
+  });
+
+  if (!pick.p1) csPrompt.textContent = "PLAYER 1 - CHOOSE YOUR FIGHTER";
+  else if (!pick.p2) csPrompt.textContent = "PLAYER 2 - CHOOSE YOUR FIGHTER";
+  else csPrompt.textContent = `${roster[pick.p1].name}  VS  ${roster[pick.p2].name}`;
+
+  csFight.disabled = !(pick.p1 && pick.p2);
+}
+
+function onCardClick(id) {
+  if (!pick.p1) pick.p1 = id;
+  else if (!pick.p2) pick.p2 = id;
+  else pick = { p1: id, p2: null }; // both picked -> start a new P1 selection
+  refreshCardStyles();
+}
+
+function buildCharacterSelect() {
+  csGrid.innerHTML = "";
+  Object.values(roster).forEach((ch) => {
+    const card = document.createElement("div");
+    card.className = "cs-card";
+    card.dataset.id = ch.id;
+
+    const cv = document.createElement("canvas");
+    const b1 = document.createElement("div");
+    b1.className = "cs-badge p1";
+    b1.textContent = "P1";
+    b1.style.display = "none";
+    const b2 = document.createElement("div");
+    b2.className = "cs-badge p2";
+    b2.textContent = "P2";
+    b2.style.display = "none";
+    const name = document.createElement("div");
+    name.className = "cs-name";
+    name.textContent = ch.name;
+
+    card.append(cv, b1, b2, name);
+    card.addEventListener("click", () => onCardClick(ch.id));
+    csGrid.appendChild(card);
+
+    drawPortrait(cv, ch.portrait);
+  });
+  refreshCardStyles();
+}
+
+// Show the select screen (from initial load or from the end screen).
+function openCharacterSelect() {
+  pick = { p1: null, p2: null };
+  gameState = GameState.SELECT;
+  pauseTimer();
+  displayText.style.display = "none";
+  displayText.innerHTML = "";
+  characterSelectEl.style.display = "flex";
+  refreshCardStyles();
+}
+
+csFight.addEventListener("click", () => {
+  if (pick.p1 && pick.p2) startMatch(pick.p1, pick.p2);
+});
+csReset.addEventListener("click", () => {
+  pick = { p1: null, p2: null };
+  refreshCardStyles();
+});
+
+buildCharacterSelect();
+openCharacterSelect();

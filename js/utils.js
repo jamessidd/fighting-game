@@ -132,18 +132,20 @@ function determineWinner({ player, enemy, timerId, onEnd }) {
   clearTimeout(timerId);
   document.querySelector("#displayText").style.display = "flex";
 
+  let result;
   if (player.health === enemy.health) {
-    document.querySelector("#displayText").innerHTML = "Tie!";
+    result = "Tie!";
   } else if (player.health > enemy.health) {
     enemy.canMove = false;
     enemy.switchSprite("death");
-    document.querySelector("#displayText").innerHTML = "Player 1 Wins!";
+    result = "Player 1 Wins!";
   } else if (enemy.health > player.health) {
     player.canMove = false;
-
     player.switchSprite("death");
-    document.querySelector("#displayText").innerHTML = "Player 2 Wins!";
+    result = "Player 2 Wins!";
   }
+  document.querySelector("#displayText").innerHTML =
+    `<div style="font-size:28px;text-shadow:3px 3px 0 #000;">${result}</div>`;
 
   if (typeof onEnd === "function") onEnd();
 }

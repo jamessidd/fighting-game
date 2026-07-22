@@ -1,9 +1,13 @@
 import {Fighter} from "../js/classes.js";
 
+// Central character registry. Each entry knows its display name, a factory
+// that returns a FRESH Fighter instance, and portrait info (first frame of the
+// idle sheet) used by the character-select screen. Order defines grid order.
+
 
 //-----------------FireKnight-----------------------------------
 
-export var FireKnight = new Fighter({
+export const createFireKnight = () => new Fighter({
   height: 120,
   width: 70,
   position: {
@@ -128,7 +132,7 @@ export var FireKnight = new Fighter({
 
 //----------------WATER PRINCESS------------------------------
 
-export var WaterPrincess = new Fighter({
+export const createWaterPrincess = () => new Fighter({
     height: 95,
     width: 45,
     position: {
@@ -255,7 +259,7 @@ export var WaterPrincess = new Fighter({
 
 //----------------METAL BLADEMASTER------------------------------
 
-export var MetalBladeMaster = new Fighter({
+export const createMetalBladeMaster = () => new Fighter({
   height: 110,
   width: 60,
   position: {
@@ -378,7 +382,7 @@ export var MetalBladeMaster = new Fighter({
 
 //----------------WIND ASSASSIN------------------------------
 
-export var WindAssassin = new Fighter({
+export const createWindAssassin = () => new Fighter({
   height: 95,
   width: 65,
   position: {
@@ -502,7 +506,7 @@ export var WindAssassin = new Fighter({
 
 //----------------GROUND MONK------------------------------
 
-export var GroundMonk = new Fighter({
+export const createGroundMonk = () => new Fighter({
   height: 95,
   width: 55,
   position: {
@@ -625,7 +629,7 @@ export var GroundMonk = new Fighter({
 
 //----------------CRYSTAL MAULER------------------------------
 
-export var CrystalMauler = new Fighter({
+export const createCrystalMauler = () => new Fighter({
   height: 105,
   width: 75,
   position: {
@@ -745,3 +749,42 @@ export var CrystalMauler = new Fighter({
     },
   },
 });
+
+export const roster = {
+  FireKnight: {
+    id: "FireKnight",
+    name: "Fire Knight",
+    create: createFireKnight,
+    portrait: { src: "./img/FireKnight/idle.png", framesMax: 8 },
+  },
+  WaterPrincess: {
+    id: "WaterPrincess",
+    name: "Water Princess",
+    create: createWaterPrincess,
+    portrait: { src: "./img/WaterPrincess/idle.png", framesMax: 8 },
+  },
+  MetalBladeMaster: {
+    id: "MetalBladeMaster",
+    name: "Metal Blademaster",
+    create: createMetalBladeMaster,
+    portrait: { src: "./img/MetalBladeMaster/idle.png", framesMax: 8 },
+  },
+  WindAssassin: {
+    id: "WindAssassin",
+    name: "Wind Assassin",
+    create: createWindAssassin,
+    portrait: { src: "./img/WindAssassin/idle.png", framesMax: 8 },
+  },
+  GroundMonk: {
+    id: "GroundMonk",
+    name: "Ground Monk",
+    create: createGroundMonk,
+    portrait: { src: "./img/GroundMonk/idle.png", framesMax: 6 },
+  },
+  CrystalMauler: {
+    id: "CrystalMauler",
+    name: "Crystal Mauler",
+    create: createCrystalMauler,
+    portrait: { src: "./img/CrystalMauler/idle.png", framesMax: 8 },
+  },
+};
