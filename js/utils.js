@@ -41,16 +41,14 @@ function fighterCollision(rect1, rect2) {
   );
 }
 
-// Stamina cost of a special/super (attack4).
-const SPECIAL_STAMINA_COST = 50;
-
 function getAttack(fighter, fighter2, specialAttack = false) {
   if (specialAttack) {
+    const cost = CONFIG.special.staminaCost; // CONFIG is a global from config.js
     if (!fighter.grounded) return;
     if (!fighter.canAttack) return; // already mid-attack
-    if (fighter.stamina < SPECIAL_STAMINA_COST) return; // not enough stamina
+    if (fighter.stamina < cost) return; // not enough stamina
 
-    fighter.stamina -= SPECIAL_STAMINA_COST;
+    fighter.stamina -= cost;
     fighter.attack(
       fighter.attacks.attack4,
       0,
@@ -156,7 +154,7 @@ function determineWinner({ player, enemy, timerId, onEnd }) {
   if (typeof onEnd === "function") onEnd();
 }
 
-let timer = 101;
+let timer = 101; // overwritten from CONFIG.timerStart when a match starts
 let timerId;
 function decreaseTimer(player, enemy, onEnd) {
   if (timer > 0) {
@@ -172,7 +170,7 @@ function decreaseTimer(player, enemy, onEnd) {
 // Reset the round clock back to its starting value (used on rematch).
 function resetTimer() {
   clearTimeout(timerId);
-  timer = 101;
+  timer = CONFIG.timerStart;
 }
 
 // Pause the countdown without losing the current value.
@@ -188,13 +186,14 @@ function resumeTimer(player, enemy, onEnd) {
 }
 
 function knockback(fighterhit, fighter2, dt) {
+  const k = CONFIG.knockbackMultiplier;
   if (fighterhit.dead) return;
   if (fighterhit.position.x > fighter2.position.x) {
-    fighterhit.velocity.x += fighter2.currentAttack.knockback * 50 * dt;
+    fighterhit.velocity.x += fighter2.currentAttack.knockback * k * dt;
     fighterhit.velocity.y -= 2;
   }
   if (fighterhit.position.x < fighter2.position.x) {
-    fighterhit.velocity.x -= fighter2.currentAttack.knockback * 50 * dt;
+    fighterhit.velocity.x -= fighter2.currentAttack.knockback * k * dt;
     fighterhit.velocity.y -= 2;
   }
 }

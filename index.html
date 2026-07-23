@@ -100,6 +100,29 @@
     .cs-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .cs-btn.secondary { background: #cbd5e1; }
     #csHint { font-size: 9px; opacity: 0.8; }
+
+    /* ---- In-game controls display ---- */
+    .game-controls {
+      position: absolute;
+      bottom: 10px;
+      z-index: 4;
+      display: none; /* toggled on during a match */
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      padding: 7px 9px;
+      font-size: 8px;
+      line-height: 1.8;
+      pointer-events: none;
+    }
+    #p1Controls { left: 10px; }
+    #p2Controls { right: 10px; text-align: right; }
+    .ctrl-title {
+      font-size: 9px;
+      margin-bottom: 4px;
+      color: #facc15;
+    }
   </style>
 </head>
 
@@ -264,6 +287,8 @@
       </div>
       <div id="csHint">P1: A/D move, W jump, S attack, F special, L-Shift block, E roll &nbsp;|&nbsp; P2: Arrows move, Up jump, Down attack, / special, R-Shift block, . roll</div>
     </div>
+    <div id="p1Controls" class="game-controls"></div>
+    <div id="p2Controls" class="game-controls"></div>
     <canvas></canvas>
   </div>
 

@@ -1,5 +1,6 @@
 import { roster } from "../js/characters.js";
 import Sprite from "../js/classes.js";
+import { CONFIG } from "../js/config.js";
 
 
 const canvas = document.querySelector("canvas");
@@ -39,6 +40,8 @@ let gameState = GameState.SELECT;
 const displayText = document.querySelector("#displayText");
 const playerStaminaEl = document.querySelector("#playerStamina");
 const enemyStaminaEl = document.querySelector("#enemyStamina");
+const p1ControlsEl = document.querySelector("#p1Controls");
+const p2ControlsEl = document.querySelector("#p2Controls");
 
 // Fighters and their spawn snapshot are created when a match starts
 // (see startMatch), after both players have picked in the select screen.
@@ -46,24 +49,39 @@ let player;
 let enemy;
 let lastMatch = { p1: "FireKnight", p2: "WaterPrincess" };
 
-const keys = {
-  a: {
-    pressed: false,
+// Per-player control schemes. Directions/jump/attack/special/roll match
+// event.key; block matches event.code (to tell Left vs Right Shift apart).
+const SCHEMES = {
+  p1: {
+    left: "a",
+    right: "d",
+    jump: "w",
+    attack: "s",
+    special: "f",
+    roll: "e",
+    blockCode: "ShiftLeft",
   },
-  d: {
-    pressed: false,
+  p2: {
+    left: "ArrowLeft",
+    right: "ArrowRight",
+    jump: "ArrowUp",
+    attack: "ArrowDown",
+    special: "/",
+    roll: ".",
+    blockCode: "ShiftRight",
   },
-  ArrowRight: {
-    pressed: false,
-  },
-  ArrowLeft: {
-    pressed: false,
-  },
+};
+
+// Human-readable labels for the on-screen controls display.
+const KEY_LABELS = {
+  a: "A", d: "D", w: "W", s: "S", f: "F", e: "E", ".": ".", "/": "/",
+  ArrowLeft: "\u2190", ArrowRight: "\u2192", ArrowUp: "\u2191", ArrowDown: "\u2193",
+  ShiftLeft: "Left Shift", ShiftRight: "Right Shift",
 };
 
 //ANIMATE AT 60fps
 let msPrev = window.performance.now();
-const fps = 60;
+const fps = CONFIG.fps;
 const msPerFrame = 1000 / fps;
 let frames = 0;
 function animate() {
@@ -119,204 +137,25 @@ function animate() {
   player.velocity.x = 0;
   enemy.velocity.x = 0;
 
-  //player movement
+  // Per-fighter update (identical logic for both players, just mirrored input).
+  updateMovement(player);
+  updateMovement(enemy);
 
-  if (player.canMove && keys.a.pressed && player.lastkey === "a") {
-    if (player.currentAttack === undefined) {
-      player.velocity.x = -player.moveSpeed;
-      if(player.currentAttack === undefined)
-        player.direction = 0;
+  faceOpponent(player, enemy);
+  faceOpponent(enemy, player);
 
-    } else {
-      player.velocity.x = -player.moveSpeed * player.attackMoveSpeed;
-      if(player.currentAttack === undefined)
-        player.direction = 0;
-
-    }
-
-    if (player.grounded) player.switchSprite("run");
-  } else if (player.canMove && keys.d.pressed && player.lastkey === "d") {
-    if (player.currentAttack === undefined) {
-      player.velocity.x = player.moveSpeed;
-      if(player.currentAttack === undefined)
-        player.direction = 1;
-
-    } else {
-      player.velocity.x = player.moveSpeed * player.attackMoveSpeed;
-      if(player.currentAttack === undefined)
-        player.direction = 1;
-
-    }
-    if (player.grounded) player.switchSprite("run");
-  } else if (player.canMove && player.grounded) {
-    player.switchSprite("idle");
-  }
-
-  if (player.canMove && player.velocity.y < 0) {
-    player.switchSprite("jump");
-  } else if (player.canMove && player.velocity.y > 2) {
-    player.switchSprite("fall");
-  }
-  //enemy movement
-  if (
-    enemy.canMove &&
-    keys.ArrowLeft.pressed &&
-    enemy.lastkey === "ArrowLeft"
-  ) {
-    if (enemy.currentAttack === undefined) {
-      enemy.velocity.x = -enemy.moveSpeed;
-      if(enemy.currentAttack === undefined)
-        enemy.direction = 0;
-
-    } else {
-      enemy.velocity.x = -enemy.moveSpeed * enemy.attackMoveSpeed;
-      if(enemy.currentAttack === undefined)
-        enemy.direction = 0;
-
-    }
-    if (enemy.grounded) enemy.switchSprite("run");
-  } else if (
-    enemy.canMove &&
-    keys.ArrowRight.pressed &&
-    enemy.lastkey === "ArrowRight"
-  ) {
-    if (enemy.currentAttack === undefined) {
-      enemy.velocity.x = enemy.moveSpeed;
-      if(enemy.currentAttack === undefined)
-        enemy.direction = 1;
-
-    } else {
-      enemy.velocity.x = enemy.moveSpeed * enemy.attackMoveSpeed;
-      if(enemy.currentAttack === undefined)
-        enemy.direction = 1;
-
-    }
-    if (enemy.grounded) enemy.switchSprite("run");
-  } else if (enemy.canMove && enemy.grounded) {
-    enemy.switchSprite("idle");
-  }
-
-  //jump animation enemy
-  if (enemy.canMove && enemy.velocity.y < 0) {
-    enemy.switchSprite("jump");
-  } else if (enemy.canMove && enemy.velocity.y > 2) {
-    enemy.switchSprite("fall");
-  }
-
-  // Auto-turnaround: face the opponent while neutral. Skipped mid-attack,
-  // hit-stun, death, or specials (canMove is false / an attack is active), so
-  // a fighter never flips in the middle of a move.
-  if (player.canMove && player.currentAttack === undefined) {
-    player.direction = player.position.x <= enemy.position.x ? 1 : 0;
-  }
-  if (enemy.canMove && enemy.currentAttack === undefined) {
-    enemy.direction = enemy.position.x <= player.position.x ? 1 : 0;
-  }
-
-  // Guard stance: holding the dedicated block key while grounded and neutral.
-  player.isBlocking =
-    p1BlockHeld &&
-    player.grounded &&
-    player.canMove &&
-    player.currentAttack === undefined &&
-    !player.rolling;
-  enemy.isBlocking =
-    p2BlockHeld &&
-    enemy.grounded &&
-    enemy.canMove &&
-    enemy.currentAttack === undefined &&
-    !enemy.rolling;
-
-  // While guarding, stand still and hold the defend pose.
-  if (player.isBlocking) {
-    player.velocity.x = 0;
-    player.switchSprite("defend");
-  }
-  if (enemy.isBlocking) {
-    enemy.velocity.x = 0;
-    enemy.switchSprite("defend");
-  }
+  updateBlock(player);
+  updateBlock(enemy);
 
   // Roll movement: carry the dodge velocity while a roll is active.
-  if (player.rolling) player.velocity.x = player.rollDir * ROLL_SPEED;
-  if (enemy.rolling) enemy.velocity.x = enemy.rollDir * ROLL_SPEED;
+  if (player.rolling) player.velocity.x = player.rollDir * CONFIG.roll.speed;
+  if (enemy.rolling) enemy.velocity.x = enemy.rollDir * CONFIG.roll.speed;
 
-  //windAssassinSpecial
-  if(player.currentAttack !== undefined){
-    if(player.currentAttack.id === 'attack4' && player.characterId === 'WindAssassin' && (player.framesCurrent === 1))
-      WASpecialMove(player, player.position.x ,enemy.position.x)
-      
-  }
-  if(enemy.currentAttack !== undefined){
-    if(enemy.currentAttack.id === 'attack4' && enemy.characterId === 'WindAssassin' && (enemy.framesCurrent === 1))
-      WASpecialMove(enemy, enemy.position.x ,player.position.x)
-      
-  }
+  handleSpecial(player, enemy);
+  handleSpecial(enemy, player);
 
-  //groundMonkSpecial
-  if(player.currentAttack !== undefined){
-    if(player.currentAttack.id === 'attack4' && player.characterId === 'GroundMonk' && (player.framesCurrent === 1))
-      GMSpecialMove(player, enemy)
-      
-  }
-  if(enemy.currentAttack !== undefined){
-    if(enemy.currentAttack.id === 'attack4' && enemy.characterId === 'GroundMonk' && (enemy.framesCurrent === 1))
-      GMSpecialMove(enemy, player)
-      
-  }
-
-  if (frames % player.framesHold === 0){
-
-    if (
-      rectangularCollision({
-        rectangle1: player,
-        rectangle2: enemy,
-      }) &&
-      player.isAttacking &&
-      !enemy.invincible
-    ) {
-      player.isAttacking = false;
-      player.stopAttack = player.currentAttack.id;
-
-      if (enemy.isBlocking && enemy.stamina > 0) {
-        enemy.blockHit(player.currentAttack);
-      } else {
-        enemy.direction = player.position.x >= enemy.position.x ? 1 : 0;
-        enemy.takehit(player.currentAttack);
-        knockback(enemy, player, deltaTime);
-      }
-      gsap.to(`#enemyHealth`, {
-        width: enemy.health + "%",
-      });
-    }
-
-  }
-  
-  if (frames % enemy.framesHold === 0){
-    if (
-      rectangularCollision({
-        rectangle1: enemy,
-        rectangle2: player,
-      }) &&
-      enemy.isAttacking &&
-      !player.invincible
-    ) {
-      enemy.isAttacking = false;
-      enemy.stopAttack = enemy.currentAttack.id;
-
-      if (player.isBlocking && player.stamina > 0) {
-        player.blockHit(enemy.currentAttack);
-      } else {
-        player.direction = enemy.position.x >= player.position.x ? 1 : 0;
-        player.takehit(enemy.currentAttack);
-        knockback(player, enemy, deltaTime);
-      }
-
-      gsap.to(`#playerHealth`, {
-        width: player.health + "%",
-      });
-    }
-  }
+  resolveHit(player, enemy, "#enemyHealth", deltaTime);
+  resolveHit(enemy, player, "#playerHealth", deltaTime);
 
   // Update stamina bars.
   playerStaminaEl.style.width = player.stamina + "%";
@@ -326,6 +165,86 @@ function animate() {
   if (enemy.health <= 0 || player.health <= 0) {
     determineWinner({ player, enemy, timerId, onEnd: endMatch });
   }
+}
+
+// --- Per-fighter combat helpers (shared by both players) --------------------
+
+// Horizontal movement + walk/idle/jump/fall animation from held input.
+function updateMovement(f) {
+  if (f.canMove && f.held.left && f.lastDir === "left") {
+    const spd =
+      f.currentAttack === undefined
+        ? f.moveSpeed
+        : f.moveSpeed * f.attackMoveSpeed;
+    f.velocity.x = -spd;
+    if (f.grounded) f.switchSprite("run");
+  } else if (f.canMove && f.held.right && f.lastDir === "right") {
+    const spd =
+      f.currentAttack === undefined
+        ? f.moveSpeed
+        : f.moveSpeed * f.attackMoveSpeed;
+    f.velocity.x = spd;
+    if (f.grounded) f.switchSprite("run");
+  } else if (f.canMove && f.grounded) {
+    f.switchSprite("idle");
+  }
+
+  if (f.canMove && f.velocity.y < 0) f.switchSprite("jump");
+  else if (f.canMove && f.velocity.y > CONFIG.fallThreshold) f.switchSprite("fall");
+}
+
+// Auto-turnaround: face the opponent while neutral (never mid-move).
+function faceOpponent(f, opp) {
+  if (f.canMove && f.currentAttack === undefined) {
+    f.direction = f.position.x <= opp.position.x ? 1 : 0;
+  }
+}
+
+// Guard stance: hold the block key while grounded + neutral to stand and defend.
+function updateBlock(f) {
+  f.isBlocking =
+    f.held.block &&
+    f.grounded &&
+    f.canMove &&
+    f.currentAttack === undefined &&
+    !f.rolling;
+  if (f.isBlocking) {
+    f.velocity.x = 0;
+    f.switchSprite("defend");
+  }
+}
+
+// Character-specific special-move behaviour, dispatched on attack4 frame 1.
+function handleSpecial(f, opp) {
+  if (
+    f.currentAttack === undefined ||
+    f.currentAttack.id !== "attack4" ||
+    f.framesCurrent !== 1
+  )
+    return;
+  if (f.characterId === "WindAssassin")
+    WASpecialMove(f, f.position.x, opp.position.x);
+  else if (f.characterId === "GroundMonk") GMSpecialMove(f, opp);
+}
+
+// Resolve attacker's active hit against defender (block / dodge / takehit).
+function resolveHit(attacker, defender, healthSel, dt) {
+  if (frames % attacker.framesHold !== 0) return;
+  if (!attacker.isAttacking || defender.invincible) return;
+  if (!rectangularCollision({ rectangle1: attacker, rectangle2: defender }))
+    return;
+
+  attacker.isAttacking = false;
+  attacker.stopAttack = attacker.currentAttack.id;
+
+  if (defender.isBlocking && defender.stamina > 0) {
+    defender.blockHit(attacker.currentAttack);
+  } else {
+    defender.direction = attacker.position.x >= defender.position.x ? 1 : 0;
+    defender.takehit(attacker.currentAttack);
+    knockback(defender, attacker, dt);
+  }
+  gsap.to(healthSel, { width: defender.health + "%" });
 }
 
 animate();
@@ -360,12 +279,21 @@ function startMatch(p1Id, p2Id) {
   enemy.position.x = canvas.width - 300;
   enemy.direction = 0;
 
+  // Bind control schemes + fresh input state.
+  player.controls = SCHEMES.p1;
+  enemy.controls = SCHEMES.p2;
+  player.held = { left: false, right: false, block: false };
+  enemy.held = { left: false, right: false, block: false };
+  player.lastDir = null;
+  enemy.lastDir = null;
+
   gsap.set("#playerHealth", { width: "100%" });
   gsap.set("#enemyHealth", { width: "100%" });
 
   displayText.style.display = "none";
   displayText.innerHTML = "";
   characterSelectEl.style.display = "none";
+  showControls();
 
   resetTimer();
   decreaseTimer(player, enemy, endMatch);
@@ -390,16 +318,23 @@ function togglePause() {
   }
 }
 
-let sKeyPressed = false;
-let fKeyPressed = false;
-
-let downKeyPressed = false;
-let slashKeyPressed = false;
-
-// Hold-to-block state (Left Shift = P1, Right Shift = P2).
-let p1BlockHeld = false;
-let p2BlockHeld = false;
-
+// Edge-triggered action for a fighter (jump / attack / special / roll).
+function edgeAction(f, opp, key) {
+  if (!f.canMove) return;
+  const ctrl = f.controls;
+  if (key === ctrl.jump) {
+    if (f.numOfJumps > 0) {
+      f.velocity.y = CONFIG.jumpVelocity;
+      f.numOfJumps -= 1;
+    }
+  } else if (key === ctrl.attack) {
+    getAttack(f, opp);
+  } else if (key === ctrl.special) {
+    getAttack(f, opp, true);
+  } else if (key === ctrl.roll) {
+    rollFighter(f);
+  }
+}
 
 window.addEventListener("keydown", (event) => {
   // Global controls (work regardless of fighter state).
@@ -419,117 +354,32 @@ window.addEventListener("keydown", (event) => {
   // Ignore gameplay input while selecting, paused, or after the match ends.
   if (gameState !== GameState.PLAYING) return;
 
-  // Hold-to-block (distinguish left vs right Shift via event.code).
-  if (event.code === "ShiftLeft") p1BlockHeld = true;
-  if (event.code === "ShiftRight") p2BlockHeld = true;
-
-  // Roll (dedicated key, forward dodge). Ignore held-key auto-repeat.
-  if (!event.repeat) {
-    if (event.key === "e" || event.key === "E") rollFighter(player);
-    if (event.key === ".") rollFighter(enemy);
-  }
-
-  if (player.canMove) {
-    switch (event.key) {
-      case "d":
-        keys.d.pressed = true;
-        player.lastkey = "d";
-        break;
-      case "a":
-        keys.a.pressed = true;
-        player.lastkey = "a";
-
-        break;
-      case "w":
-        if (player.canMove && player.numOfJumps > 0) {
-          player.velocity.y = -12;
-          player.numOfJumps -= 1;
-        }
-        break;
-      case "s":
-        if (!sKeyPressed) {
-          sKeyPressed = true;
-          getAttack(player,enemy);
-        }
-        break;
-      case "f":
-        if (!fKeyPressed) {
-          fKeyPressed = true;
-          getAttack(player,enemy, true);
-        }
-        break;
-      
+  // Held state (block by code; directions by key) for both fighters.
+  for (const [f, opp] of [
+    [player, enemy],
+    [enemy, player],
+  ]) {
+    if (event.code === f.controls.blockCode) f.held.block = true;
+    if (event.key === f.controls.left) {
+      f.held.left = true;
+      f.lastDir = "left";
     }
-  }
-  if (enemy.canMove) {
-    switch (event.key) {
-      //enemyKeys
-      case "ArrowRight":
-        keys.ArrowRight.pressed = true;
-        enemy.lastkey = "ArrowRight";
-
-        break;
-      case "ArrowLeft":
-        keys.ArrowLeft.pressed = true;
-        enemy.lastkey = "ArrowLeft";
-
-        break;
-      case "ArrowUp":
-        if (enemy.canMove && enemy.numOfJumps > 0) {
-          enemy.velocity.y = -12;
-          enemy.numOfJumps -= 1;
-        }
-        break;
-      case "ArrowDown":
-        if (!downKeyPressed) {
-          downKeyPressed = true;
-          getAttack(enemy,player);
-        }
-        break;
-      case "/":
-        if (!slashKeyPressed) {
-          slashKeyPressed = true;
-          getAttack(enemy,player,true);
-        }
-        break;
+    if (event.key === f.controls.right) {
+      f.held.right = true;
+      f.lastDir = "right";
     }
+    // Edge actions ignore auto-repeat so holding a key won't retrigger.
+    if (!event.repeat) edgeAction(f, opp, event.key);
   }
 });
 
 window.addEventListener("keyup", (event) => {
-  // Release hold-to-block.
-  if (event.code === "ShiftLeft") p1BlockHeld = false;
-  if (event.code === "ShiftRight") p2BlockHeld = false;
-
-  switch (event.key) {
-    case "d":
-      keys.d.pressed = false;
-      break;
-    case "a":
-      keys.a.pressed = false;
-      break;
-    case "s":
-      sKeyPressed = false;
-      break;
-    case "f":
-      fKeyPressed = false;
-      break;
-  }
-
-  //enemy Keys
-  switch (event.key) {
-    case "ArrowRight":
-      keys.ArrowRight.pressed = false;
-      break;
-    case "ArrowLeft":
-      keys.ArrowLeft.pressed = false;
-      break;
-    case "ArrowDown":
-      downKeyPressed = false;
-      break;
-    case "/":
-      slashKeyPressed = false;
-      break;
+  if (!player || !enemy) return;
+  // Release held state (block by code, directions by key) for both fighters.
+  for (const f of [player, enemy]) {
+    if (event.code === f.controls.blockCode) f.held.block = false;
+    if (event.key === f.controls.left) f.held.left = false;
+    if (event.key === f.controls.right) f.held.right = false;
   }
 });
 
@@ -558,16 +408,12 @@ window.addEventListener("keyup", (event) => {
 
 // --- Roll (dedicated key: forward dodge with i-frames + endlag) -------------
 
-const ROLL_STAMINA_COST = 25;
-const ROLL_SPEED = 9;
-const ROLL_ENDLAG_MS = 130; // vulnerable recovery after the roll
-
 function rollFighter(fighter) {
   if (!fighter.grounded || !fighter.canMove || fighter.rolling) return;
   if (fighter.currentAttack !== undefined) return;
-  if (fighter.stamina < ROLL_STAMINA_COST) return;
+  if (fighter.stamina < CONFIG.roll.staminaCost) return;
 
-  fighter.stamina -= ROLL_STAMINA_COST;
+  fighter.stamina -= CONFIG.roll.staminaCost;
   fighter.rolling = true;
   fighter.invincible = true; // i-frames only during the roll itself
   fighter.canMove = false;
@@ -575,7 +421,8 @@ function rollFighter(fighter) {
   fighter.framesCurrent = 0;
   fighter.switchSprite("roll", true);
 
-  const rollMs = fighter.sprites.roll.framesMax * 4 * (1000 / 60);
+  const rollMs =
+    fighter.sprites.roll.framesMax * CONFIG.moveFramesHold * (1000 / CONFIG.fps);
   // End of the roll: invincibility ends, movement stops -> vulnerable endlag.
   setTimeout(() => {
     fighter.rolling = false;
@@ -586,7 +433,7 @@ function rollFighter(fighter) {
   // Endlag over: fighter can act again.
   setTimeout(() => {
     fighter.canMove = true;
-  }, rollMs + ROLL_ENDLAG_MS);
+  }, rollMs + CONFIG.roll.endlagMs);
 }
 
 //extra special move logic
@@ -787,7 +634,38 @@ function openCharacterSelect() {
   displayText.style.display = "none";
   displayText.innerHTML = "";
   characterSelectEl.style.display = "flex";
+  hideControls();
   refreshCardStyles();
+}
+
+// --- In-game controls display (bottom corners) ------------------------------
+
+function controlsHtml(scheme, title) {
+  const L = (k) => KEY_LABELS[k] || k;
+  return (
+    `<div class="ctrl-title">${title}</div>` +
+    `<div>Move: ${L(scheme.left)} / ${L(scheme.right)}</div>` +
+    `<div>Jump: ${L(scheme.jump)}</div>` +
+    `<div>Attack: ${L(scheme.attack)}</div>` +
+    `<div>Special: ${L(scheme.special)}</div>` +
+    `<div>Block (hold): ${L(scheme.blockCode)}</div>` +
+    `<div>Roll: ${L(scheme.roll)}</div>`
+  );
+}
+
+function buildControlsDisplay() {
+  p1ControlsEl.innerHTML = controlsHtml(SCHEMES.p1, "PLAYER 1");
+  p2ControlsEl.innerHTML = controlsHtml(SCHEMES.p2, "PLAYER 2");
+}
+
+function showControls() {
+  p1ControlsEl.style.display = "block";
+  p2ControlsEl.style.display = "block";
+}
+
+function hideControls() {
+  p1ControlsEl.style.display = "none";
+  p2ControlsEl.style.display = "none";
 }
 
 csFight.addEventListener("click", () => {
@@ -799,4 +677,5 @@ csReset.addEventListener("click", () => {
 });
 
 buildCharacterSelect();
+buildControlsDisplay();
 openCharacterSelect();

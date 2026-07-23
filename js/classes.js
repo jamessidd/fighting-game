@@ -1,7 +1,8 @@
+import { CONFIG } from "./config.js";
 
 export const canvas = document.querySelector("canvas");
 export const c = canvas.getContext("2d"); //c stands for context
-export const gravity = 0.4;
+export const gravity = CONFIG.gravity;
 
 export default class Sprite {
   constructor({
@@ -207,13 +208,12 @@ export class Fighter extends Sprite {
     this.colour = colour;
     this.direction = direction;
     this.health = 100;
-    this.maxStamina = 100;
-    this.stamina = 20; // start low; build it up over the round
-    // ~15s to refill from empty at 60fps (100 / (15 * 60)).
-    this.staminaRegen = 100 / (15 * 60);
+    this.maxStamina = CONFIG.stamina.max;
+    this.stamina = CONFIG.stamina.start; // start low; build it up over the round
+    this.staminaRegen = CONFIG.stamina.regenPerFrame;
     this.framesCurrent = 0;
     this.framesElapsed = 0;
-    this.framesHold = 4;
+    this.framesHold = CONFIG.moveFramesHold;
     this.sprites = sprites;
     this.attacks = attacks;
     this.dead = false;
@@ -248,7 +248,7 @@ export class Fighter extends Sprite {
 
   reset({ x, y, direction }) {
     this.health = 100;
-    this.stamina = 20;
+    this.stamina = CONFIG.stamina.start;
     this.dead = false;
     this.canMove = true;
     this.canAttack = true;
@@ -265,7 +265,7 @@ export class Fighter extends Sprite {
     this.lastkey = undefined;
     this.framesCurrent = 0;
     this.framesElapsed = 0;
-    this.framesHold = 4;
+    this.framesHold = CONFIG.moveFramesHold;
     this.image = this.sprites.idle.image;
     this.framesMax = this.sprites.idle.framesMax;
   }
@@ -313,9 +313,12 @@ export class Fighter extends Sprite {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    if (this.position.y + this.height + this.velocity.y >= canvas.height - 96) {
+    if (
+      this.position.y + this.height + this.velocity.y >=
+      canvas.height - CONFIG.floorOffset
+    ) {
       this.velocity.y = 0;
-      this.position.y = canvas.height - 96 - this.height;
+      this.position.y = canvas.height - CONFIG.floorOffset - this.height;
       this.grounded = true;
       this.resetJumps();
     } else {
@@ -332,9 +335,9 @@ export class Fighter extends Sprite {
     }
 
     if (this.image === this.sprites.attack4.image){
-      this.framesHold = 6
+      this.framesHold = CONFIG.attack4FramesHold
     } else {
-      this.framesHold = 4
+      this.framesHold = CONFIG.moveFramesHold
     }
 
     switch (this.image) {
@@ -446,15 +449,15 @@ export class Fighter extends Sprite {
     this.health -= atk.damage;
     setTimeout(() => {
       this.canMove = true;
-    }, 600);
+    }, CONFIG.hitstunMs);
   }
 
   // Take a blocked hit: chip damage, stamina drain, brief block-stun pose.
   blockHit(atk) {
     if (this.dead) return;
-    this.health -= atk.damage * 0.25;
+    this.health -= atk.damage * CONFIG.block.damageMultiplier;
     if (this.health < 0) this.health = 0;
-    this.stamina = Math.max(0, this.stamina - 20);
+    this.stamina = Math.max(0, this.stamina - CONFIG.block.staminaCost);
     this.canMove = false;
     this.framesCurrent = 0;
     this.switchSprite("defend", true);
