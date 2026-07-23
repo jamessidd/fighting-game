@@ -85,7 +85,8 @@ export default class Sprite {
     if (this.framesElapsed % this.framesHold === 0) {
       if (this.framesCurrent < this.framesMax - 1) {
         this.framesCurrent++;
-      } else {
+      } else if (!(this.sprites && this.image === this.sprites.defend.image)) {
+        // Loop, except the guard pose which holds on its last frame.
         this.framesCurrent = 0;
       }
     }
@@ -206,10 +207,10 @@ export class Fighter extends Sprite {
     this.colour = colour;
     this.direction = direction;
     this.health = 100;
-    this.stamina = 100;
     this.maxStamina = 100;
-    // ~5s to refill from empty at 60fps (100 / (5 * 60)).
-    this.staminaRegen = 100 / (5 * 60);
+    this.stamina = 20; // start low; build it up over the round
+    // ~15s to refill from empty at 60fps (100 / (15 * 60)).
+    this.staminaRegen = 100 / (15 * 60);
     this.framesCurrent = 0;
     this.framesElapsed = 0;
     this.framesHold = 4;
@@ -247,6 +248,7 @@ export class Fighter extends Sprite {
 
   reset({ x, y, direction }) {
     this.health = 100;
+    this.stamina = 20;
     this.dead = false;
     this.canMove = true;
     this.canAttack = true;

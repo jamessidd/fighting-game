@@ -148,13 +148,13 @@ function animate() {
 
     }
     if (player.grounded) player.switchSprite("run");
-  } else if (player.grounded) {
+  } else if (player.canMove && player.grounded) {
     player.switchSprite("idle");
   }
 
-  if (player.velocity.y < 0) {
+  if (player.canMove && player.velocity.y < 0) {
     player.switchSprite("jump");
-  } else if (player.velocity.y > 2) {
+  } else if (player.canMove && player.velocity.y > 2) {
     player.switchSprite("fall");
   }
   //enemy movement
@@ -192,14 +192,14 @@ function animate() {
 
     }
     if (enemy.grounded) enemy.switchSprite("run");
-  } else if (enemy.grounded) {
+  } else if (enemy.canMove && enemy.grounded) {
     enemy.switchSprite("idle");
   }
 
   //jump animation enemy
-  if (enemy.velocity.y < 0) {
+  if (enemy.canMove && enemy.velocity.y < 0) {
     enemy.switchSprite("jump");
-  } else if (enemy.velocity.y > 2) {
+  } else if (enemy.canMove && enemy.velocity.y > 2) {
     enemy.switchSprite("fall");
   }
 
@@ -213,17 +213,29 @@ function animate() {
     enemy.direction = enemy.position.x <= player.position.x ? 1 : 0;
   }
 
-  // Guard state: holding the key away from the opponent (grounded + neutral).
+  // Guard stance: holding the dedicated block key while grounded and neutral.
   player.isBlocking =
+    p1BlockHeld &&
     player.grounded &&
     player.canMove &&
     player.currentAttack === undefined &&
-    (player.direction === 1 ? keys.a.pressed : keys.d.pressed);
+    !player.rolling;
   enemy.isBlocking =
+    p2BlockHeld &&
     enemy.grounded &&
     enemy.canMove &&
     enemy.currentAttack === undefined &&
-    (enemy.direction === 1 ? keys.ArrowLeft.pressed : keys.ArrowRight.pressed);
+    !enemy.rolling;
+
+  // While guarding, stand still and hold the defend pose.
+  if (player.isBlocking) {
+    player.velocity.x = 0;
+    player.switchSprite("defend");
+  }
+  if (enemy.isBlocking) {
+    enemy.velocity.x = 0;
+    enemy.switchSprite("defend");
+  }
 
   // Roll movement: carry the dodge velocity while a roll is active.
   if (player.rolling) player.velocity.x = player.rollDir * ROLL_SPEED;
@@ -384,9 +396,9 @@ let fKeyPressed = false;
 let downKeyPressed = false;
 let slashKeyPressed = false;
 
-// Double-tap tracking for rolls.
-const DOUBLE_TAP_MS = 300;
-let lastTap = { a: 0, d: 0, ArrowLeft: 0, ArrowRight: 0 };
+// Hold-to-block state (Left Shift = P1, Right Shift = P2).
+let p1BlockHeld = false;
+let p2BlockHeld = false;
 
 
 window.addEventListener("keydown", (event) => {
@@ -407,20 +419,14 @@ window.addEventListener("keydown", (event) => {
   // Ignore gameplay input while selecting, paused, or after the match ends.
   if (gameState !== GameState.PLAYING) return;
 
-  // Double-tap a movement direction to roll (ignore held-key auto-repeat).
+  // Hold-to-block (distinguish left vs right Shift via event.code).
+  if (event.code === "ShiftLeft") p1BlockHeld = true;
+  if (event.code === "ShiftRight") p2BlockHeld = true;
+
+  // Roll (dedicated key, forward dodge). Ignore held-key auto-repeat.
   if (!event.repeat) {
-    const rollMap = {
-      a: [player, -1],
-      d: [player, 1],
-      ArrowLeft: [enemy, -1],
-      ArrowRight: [enemy, 1],
-    };
-    const entry = rollMap[event.key];
-    if (entry) {
-      const now = performance.now();
-      if (now - lastTap[event.key] < DOUBLE_TAP_MS) rollFighter(entry[0], entry[1]);
-      lastTap[event.key] = now;
-    }
+    if (event.key === "e" || event.key === "E") rollFighter(player);
+    if (event.key === ".") rollFighter(enemy);
   }
 
   if (player.canMove) {
@@ -491,6 +497,10 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+  // Release hold-to-block.
+  if (event.code === "ShiftLeft") p1BlockHeld = false;
+  if (event.code === "ShiftRight") p2BlockHeld = false;
+
   switch (event.key) {
     case "d":
       keys.d.pressed = false;
@@ -546,30 +556,37 @@ window.addEventListener("keyup", (event) => {
 
 
 
-// --- Roll (double-tap a direction) ------------------------------------------
+// --- Roll (dedicated key: forward dodge with i-frames + endlag) -------------
 
 const ROLL_STAMINA_COST = 25;
 const ROLL_SPEED = 9;
+const ROLL_ENDLAG_MS = 130; // vulnerable recovery after the roll
 
-function rollFighter(fighter, dir) {
+function rollFighter(fighter) {
   if (!fighter.grounded || !fighter.canMove || fighter.rolling) return;
   if (fighter.currentAttack !== undefined) return;
   if (fighter.stamina < ROLL_STAMINA_COST) return;
 
   fighter.stamina -= ROLL_STAMINA_COST;
   fighter.rolling = true;
-  fighter.invincible = true; // i-frames during the dodge
+  fighter.invincible = true; // i-frames only during the roll itself
   fighter.canMove = false;
-  fighter.rollDir = dir;
+  fighter.rollDir = fighter.direction === 1 ? 1 : -1; // forward only
   fighter.framesCurrent = 0;
   fighter.switchSprite("roll", true);
 
   const rollMs = fighter.sprites.roll.framesMax * 4 * (1000 / 60);
+  // End of the roll: invincibility ends, movement stops -> vulnerable endlag.
   setTimeout(() => {
     fighter.rolling = false;
     fighter.invincible = false;
-    fighter.canMove = true;
+    fighter.velocity.x = 0;
+    fighter.switchSprite("idle", true);
   }, rollMs);
+  // Endlag over: fighter can act again.
+  setTimeout(() => {
+    fighter.canMove = true;
+  }, rollMs + ROLL_ENDLAG_MS);
 }
 
 //extra special move logic
