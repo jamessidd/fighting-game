@@ -1,6 +1,7 @@
 import { roster } from "../js/characters.js";
 import Sprite from "../js/classes.js";
 import { CONFIG } from "../js/config.js";
+import { audio } from "../js/audio.js";
 
 
 const canvas = document.querySelector("canvas");
@@ -30,12 +31,13 @@ const shop = new Sprite({
 
 // Game state machine.
 const GameState = {
+  TITLE: "title",
   SELECT: "select",
   PLAYING: "playing",
   PAUSED: "paused",
   ENDED: "ended",
 };
-let gameState = GameState.SELECT;
+let gameState = GameState.TITLE;
 
 const displayText = document.querySelector("#displayText");
 const playerStaminaEl = document.querySelector("#playerStamina");
@@ -239,10 +241,12 @@ function resolveHit(attacker, defender, healthSel, dt) {
 
   if (defender.isBlocking && defender.stamina > 0) {
     defender.blockHit(attacker.currentAttack);
+    audio.block();
   } else {
     defender.direction = attacker.position.x >= defender.position.x ? 1 : 0;
     defender.takehit(attacker.currentAttack);
     knockback(defender, attacker, dt);
+    audio.hit();
   }
   gsap.to(healthSel, { width: defender.health + "%" });
 }
@@ -254,6 +258,7 @@ animate();
 // Called once when a match ends (KO or time out).
 function endMatch() {
   gameState = GameState.ENDED;
+  audio.ko();
   player.velocity.x = 0;
   enemy.velocity.x = 0;
   displayText.innerHTML +=
@@ -326,10 +331,14 @@ function edgeAction(f, opp, key) {
     if (f.numOfJumps > 0) {
       f.velocity.y = CONFIG.jumpVelocity;
       f.numOfJumps -= 1;
+      audio.jump();
     }
   } else if (key === ctrl.attack) {
     getAttack(f, opp);
+    audio.attack();
   } else if (key === ctrl.special) {
+    if (f.grounded && f.canAttack && f.stamina >= CONFIG.special.staminaCost)
+      audio.special();
     getAttack(f, opp, true);
   } else if (key === ctrl.roll) {
     rollFighter(f);
@@ -338,6 +347,15 @@ function edgeAction(f, opp, key) {
 
 window.addEventListener("keydown", (event) => {
   // Global controls (work regardless of fighter state).
+  if (event.key === "Enter") {
+    if (gameState === GameState.TITLE) startGame();
+    return;
+  }
+  if (event.key === "m" || event.key === "M") {
+    audio.toggleMute();
+    updateMuteButton();
+    return;
+  }
   if (event.key === "r" || event.key === "R") {
     if (gameState === GameState.ENDED) resetMatch();
     return;
@@ -414,6 +432,7 @@ function rollFighter(fighter) {
   if (fighter.stamina < CONFIG.roll.staminaCost) return;
 
   fighter.stamina -= CONFIG.roll.staminaCost;
+  audio.roll();
   fighter.rolling = true;
   fighter.invincible = true; // i-frames only during the roll itself
   fighter.canMove = false;
@@ -594,6 +613,7 @@ function onCardClick(id) {
   if (!pick.p1) pick.p1 = id;
   else if (!pick.p2) pick.p2 = id;
   else pick = { p1: id, p2: null }; // both picked -> start a new P1 selection
+  audio.ui();
   refreshCardStyles();
 }
 
@@ -676,6 +696,39 @@ csReset.addEventListener("click", () => {
   refreshCardStyles();
 });
 
+// --- Title screen + audio controls ------------------------------------------
+
+const titleScreenEl = document.querySelector("#titleScreen");
+const startBtn = document.querySelector("#startBtn");
+const muteBtn = document.querySelector("#muteBtn");
+
+function showTitle() {
+  gameState = GameState.TITLE;
+  titleScreenEl.style.display = "flex";
+  characterSelectEl.style.display = "none";
+  displayText.style.display = "none";
+  displayText.innerHTML = "";
+  hideControls();
+}
+
+function startGame() {
+  audio.resume(); // first user gesture unlocks the AudioContext
+  audio.startMusic();
+  audio.ui();
+  titleScreenEl.style.display = "none";
+  openCharacterSelect();
+}
+
+function updateMuteButton() {
+  muteBtn.textContent = audio.isMuted() ? "Sound: Off" : "Sound: On";
+}
+
+startBtn.addEventListener("click", startGame);
+muteBtn.addEventListener("click", () => {
+  audio.toggleMute();
+  updateMuteButton();
+});
+
 buildCharacterSelect();
 buildControlsDisplay();
-openCharacterSelect();
+showTitle();
